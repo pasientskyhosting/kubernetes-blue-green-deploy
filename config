@@ -1,0 +1,12 @@
+# Update these on new deployments
+git_repo=""
+build_id="1"
+
+# Do not touch after service is created
+application_name="platform-communication-frontend"
+deploy_name="${application_name}-${build_id}"
+image="richarvey/nginx-static:latest"
+ssh_key=""
+hostname=""
+certificate="publicdns.zone"
+namespace="default"

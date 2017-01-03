@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{application_name}}
+  namespace: {{namespace}}
+spec:
+  tls:
+  - hosts:
+    - "{{hostname}}"
+    secretName: {{certificate}}
+  rules:
+  - host: {{hostname}}
+    http:
+      paths:
+      - backend:
+          serviceName: {{application_name}}
+          servicePort: 80
+        path: /
+---

@@ -1,0 +1,28 @@
+#!/bin/bash
+if [ ! -f config ];
+then
+    echo "Missing config file" 1>&2
+    exit 1
+fi
+source config
+
+kubectl get ingress $application_name > /dev/null 2>&1
+if [ $? -eq 0 ];
+then
+    echo "Ingress controller for application already exists" 1>&2
+    exit 1
+fi
+
+kubectl get service $application_name > /dev/null 2>&1
+if [ $? -eq 0 ];
+then
+    echo "Service for application already exists" 1>&2
+    exit 1
+fi
+
+cat ingress.yaml service.yaml \
+    | sed "s/{{application_name}}/$application_name/" \
+    | sed "s/{{namespace}}/$namespace/" \
+    | sed "s/{{hostname}}/$hostname/" \
+    | sed "s/{{certificate}}/$certificate/" \
+    | kubectl apply -f -

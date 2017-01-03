@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    application: {{application_name}}
+    build: "{{build_id}}"
+  name: {{deploy_name}}
+  namespace: {{namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: {{application_name}}
+      build: "{{build_id}}"
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        application: {{application_name}}
+        build: "{{build_id}}"
+    spec:
+      containers:
+      - image: {{image}}
+        imagePullPolicy: Always
+        name: {{deploy_name}}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        env:
+          - name: GIT_REPO
+            value: {{git_repo}}
+          - name: SSH_KEY
+            value: {{ssh_key}}
+        resources:
+          requests:
+            cpu: 1000m #1000m = 1 cpu core
+        ports:
+        - containerPort: 80
+          protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
