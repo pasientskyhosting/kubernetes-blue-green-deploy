@@ -4,12 +4,13 @@ metadata:
   name: {{application_name}}
   namespace: {{namespace}}
 spec:
+  clusterIP: {{cluster_ip}}
   ports:
   - port: 80
     protocol: TCP
     targetPort: 80
   selector:
     application: "{{application_name}}"
-    build: "0"
+    build: "{{build_id}}"
   sessionAffinity: None
 ---
