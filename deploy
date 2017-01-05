@@ -81,7 +81,15 @@ echo "Switching to build id: $build_id"
 kubectl get services $application_name -o yaml | sed "s/build:.*$/build: \"$build_id\"/" | kubectl replace -f -
 
 # - delete autoscale
-kubectl delete hpa $current_release
+kubectl get hpa $current_release > /dev/null 2>&1
+if [ $? -eq 0 ];
+then
+    kubectl delete hpa $current_release
+fi
 
 # - delete deployment
-kubectl delete deployment $current_release
+kubectl get deployment $current_release > /dev/null 2>&1
+if [ $? -eq 0 ];
+then
+    kubectl delete deployment $current_release
+fi
