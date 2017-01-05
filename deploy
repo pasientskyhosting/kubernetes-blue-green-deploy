@@ -1,4 +1,6 @@
 #!/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 if [ ! -f config ];
 then
     echo "Missing config file" 1>&2
@@ -53,7 +55,7 @@ cat autoscale.yaml deployment.yaml \
 
 echo -n "Waiting for ${application_name}-${build_id} to be available "
 check=0
-failtime=$(($(date +%s) + 1 * 60))
+failtime=$(($(date +%s) + 5 * 60))
 while [ $check -lt 1 ];
 do
     check=`kubectl get deployment ${application_name}-${build_id} -o yaml --namespace=$namespace | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d ' ' | grep -Eo '[0-9]+'`

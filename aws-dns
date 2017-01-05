@@ -1,0 +1,84 @@
+#!/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+if [ ! -f config ];
+then
+    echo "Missing config file" 1>&2
+    exit 1
+fi
+source config
+
+# More advanced options below
+# The Time-To-Live of this recordset
+TTL=60
+
+# Change this if you want
+COMMENT="Auto updating @ `date`"
+
+# Change to AAAA if using an IPv6 address
+TYPE="A"
+
+function valid_ip()
+{
+    local  ip=$1
+    local  stat=1
+
+    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        OIFS=$IFS
+        IFS='.'
+        ip=($ip)
+        IFS=$OIFS
+        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 \
+            && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
+        stat=$?
+    fi
+    return $stat
+}
+
+if ! valid_ip $ip; then
+    echo "Invalid IP address: $ip" >> "$LOGFILE"
+    exit 1
+fi
+
+TMPFILE=$(mktemp /tmp/temporary-file.XXXXXXXX)
+cat > ${TMPFILE} << EOF
+{
+  "Comment":"$COMMENT",
+  "Changes":[
+    {
+      "Action":"UPSERT",
+      "ResourceRecordSet":{
+        "ResourceRecords":[
+          {
+            "Value":"$ip"
+          }
+        ],
+        "Name":"$hostname",
+        "Type":"$TYPE",
+        "TTL":$TTL
+      }
+    }
+  ]
+}
+EOF
+
+# Update the Hosted Zone record
+aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
+
+# Wait for dns to become active
+echo -n "Waiting for dns to become active "
+failtime=$(($(date +%s) + 1 * 60))
+while [ host $hostname | grep "3(NXDOMAIN)" ];
+do
+    if [ $(date +%s) -gt "$failtime" ];
+    then
+         echo " failed" 1>&2
+         exit 1
+    fi
+
+    echo -n "."
+    sleep 1
+done
+echo " done" 1>&2
+
+# Clean up
+rm $TMPFILE
