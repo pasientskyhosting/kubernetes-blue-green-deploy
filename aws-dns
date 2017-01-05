@@ -35,7 +35,7 @@ function valid_ip()
 }
 
 if ! valid_ip $ip; then
-    echo "Invalid IP address: $ip" >> "$LOGFILE"
+    echo "Invalid IP address: $ip"
     exit 1
 fi
 
