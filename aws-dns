@@ -12,7 +12,7 @@ source config
 TTL=60
 
 # Change this if you want
-COMMENT="Auto updating @ `date`"
+COMMENT="Auto by PSDEV Bamboo @ `date`"
 
 # Change to AAAA if using an IPv6 address
 TYPE="A"
@@ -61,10 +61,20 @@ cat > ${TMPFILE} << EOF
 }
 EOF
 
-cat ${TMPFILE}
+echo "Creating dns record for $hostname that points to ip $hostname_ip"
 
 # Update the Hosted Zone record
 aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
+if [ $? -ne 0 ];
+then
+    echo "Failed to create dns record at Amazon"
+    # Clean up
+    rm $TMPFILE
+    exit 1
+fi
+
+# Clean up
+rm $TMPFILE
 
 # Wait for dns to become active
 echo -n "Waiting for dns to become active "
@@ -73,14 +83,11 @@ while [ `host $hostname | grep "3(NXDOMAIN)"` ];
 do
     if [ $(date +%s) -gt "$failtime" ];
     then
-         echo " failed" 1>&2
+         echo " failed"
          exit 1
     fi
 
     echo -n "."
     sleep 1
 done
-echo " done" 1>&2
-
-# Clean up
-rm $TMPFILE
+echo " done"
