@@ -7,7 +7,7 @@ fi
 source config
 
 method="apply"
-kubectl get ingress $application_name > /dev/null 2>&1
+kubectl get ingress $application_name --namespace=$namespace > /dev/null 2>&1
 if [ $? -eq 0 ];
 then
     echo "Ingress controller for application already exists" 1>&2
@@ -23,13 +23,13 @@ cat ingress.yaml \
 method="apply"
 cluster_ip=""
 build_id=0
-kubectl get service $application_name > /dev/null 2>&1
+kubectl get service $application_name --namespace=$namespace > /dev/null 2>&1
 if [ $? -eq 0 ];
 then
     echo "Service for application already exists" 1>&2
     method="replace"
-    cluster_ip="`kubectl get service $application_name -o yaml | grep 'clusterIP:' | cut -d ':' -f 2 | tr -d ' '`"
-    build_id="`kubectl get service $application_name -o yaml | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'`"
+    cluster_ip="`kubectl get service $application_name -o yaml --namespace=$namespace | grep 'clusterIP:' | cut -d ':' -f 2 | tr -d ' '`"
+    build_id="`kubectl get service $application_name -o yaml --namespace=$namespace | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'`"
 fi
 
 cat service.yaml \
