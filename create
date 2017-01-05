@@ -6,6 +6,13 @@ then
 fi
 source config
 
+kubectl get namespace $namespace > /dev/null 2>&1
+if [ $? -ne 0 ];
+then
+    kubectl create namespace $namespace
+    echo "Created namespace $namespace in cluster"
+fi
+
 method="apply"
 kubectl get ingress $application_name --namespace=$namespace > /dev/null 2>&1
 if [ $? -eq 0 ];
