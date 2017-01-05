@@ -70,8 +70,8 @@ do
     if [ $(date +%s) -gt "$failtime" ];
     then
          echo "failed"
-         kubectl delete hpa ${application_name}-${build_id}
-         kubectl delete deployment ${application_name}-${build_id}
+         kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
+         kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
          exit 1
     fi
 done
