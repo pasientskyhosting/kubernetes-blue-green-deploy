@@ -40,6 +40,7 @@ if ! valid_ip $ip; then
 fi
 
 TMPFILE=$(mktemp /tmp/temporary-file.XXXXXXXX)
+echo "Temp file $TMPFILE"
 cat > ${TMPFILE} << EOF
 {
   "Comment":"$COMMENT",
@@ -60,6 +61,8 @@ cat > ${TMPFILE} << EOF
   ]
 }
 EOF
+
+cat ${TMPFILE}
 
 # Update the Hosted Zone record
 aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
