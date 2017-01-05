@@ -40,7 +40,6 @@ if ! valid_ip $hostname_ip; then
 fi
 
 TMPFILE=$(mktemp /tmp/temporary-file.XXXXXXXX)
-echo "Temp file $TMPFILE"
 cat > ${TMPFILE} << EOF
 {
   "Comment":"$COMMENT",
@@ -70,7 +69,7 @@ aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch 
 # Wait for dns to become active
 echo -n "Waiting for dns to become active "
 failtime=$(($(date +%s) + 1 * 60))
-while [ host $hostname | grep "3(NXDOMAIN)" ];
+while [ `host $hostname | grep "3(NXDOMAIN)"` ];
 do
     if [ $(date +%s) -gt "$failtime" ];
     then
