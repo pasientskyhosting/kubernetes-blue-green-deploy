@@ -18,7 +18,6 @@ cat ingress.yaml \
     | sed "s/{{application_name}}/$application_name/" \
     | sed "s/{{namespace}}/$namespace/" \
     | sed "s/{{hostname}}/$hostname/" \
-    | sed "s/{{certificate}}/$certificate/" \
     | kubectl $method -f -
 
 method="apply"
@@ -37,7 +36,6 @@ cat service.yaml \
     | sed "s/{{application_name}}/$application_name/" \
     | sed "s/{{namespace}}/$namespace/" \
     | sed "s/{{hostname}}/$hostname/" \
-    | sed "s/{{certificate}}/$certificate/" \
     | sed "s/{{cluster_ip}}/$cluster_ip/" \
     | sed "s/{{build_id}}/$build_id/" \
     | kubectl $method -f -

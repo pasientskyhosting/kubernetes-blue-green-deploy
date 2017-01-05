@@ -21,14 +21,14 @@ then
     exit 1
 fi
 
-kubectl get deployment $deploy_name > /dev/null 2>&1
+kubectl get deployment ${application_name}-${build_id} > /dev/null 2>&1
 if [ $? -eq 0 ];
 then
     echo "Deployment already exists" 1>&2
     exit 1
 fi
 
-kubectl get hpa $deploy_name > /dev/null 2>&1
+kubectl get hpa ${application_name}-${build_id} > /dev/null 2>&1
 if [ $? -eq 0 ];
 then
     echo "Autoscale group already exists" 1>&2
@@ -44,19 +44,19 @@ current_release="${application_name}-${current_build_id}"
 cat autoscale.yaml deployment.yaml \
     | sed "s/{{application_name}}/$application_name/" \
     | sed "s/{{build_id}}/$build_id/" \
-    | sed "s/{{deploy_name}}/$deploy_name/" \
+    | sed "s/{{deploy_name}}/${application_name}-${build_id}/" \
     | sed "s|{{image}}|$image|" \
     | sed "s|{{git_repo}}|$git_repo|" \
     | sed "s/{{ssh_key}}/$ssh_key/" \
     | sed "s/{{namespace}}/$namespace/" \
     | kubectl apply -f -
 
-echo -n "Waiting for $deploy_name to be available "
+echo -n "Waiting for ${application_name}-${build_id} to be available "
 check=0
 failtime=$(($(date +%s) + 1 * 60))
 while [ $check -lt 1 ];
 do
-    check=`kubectl get deployment $deploy_name -o yaml | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d ' ' | grep -Eo '[0-9]+'`
+    check=`kubectl get deployment ${application_name}-${build_id} -o yaml | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d ' ' | grep -Eo '[0-9]+'`
     if [ "$check" = "" ];
     then
       check=0
@@ -68,8 +68,8 @@ do
     if [ $(date +%s) -gt "$failtime" ];
     then
          echo "failed" 1>&2
-         kubectl delete hpa $deploy_name
-         kubectl delete deployment $deploy_name
+         kubectl delete hpa ${application_name}-${build_id}
+         kubectl delete deployment ${application_name}-${build_id}
          exit 1
     fi
 done
