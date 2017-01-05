@@ -34,8 +34,8 @@ function valid_ip()
     return $stat
 }
 
-if ! valid_ip $ip; then
-    echo "Invalid IP address: $ip"
+if ! valid_ip $hostname_ip; then
+    echo "Invalid IP address: $hostname_ip"
     exit 1
 fi
 
@@ -50,7 +50,7 @@ cat > ${TMPFILE} << EOF
       "ResourceRecordSet":{
         "ResourceRecords":[
           {
-            "Value":"$ip"
+            "Value":"$hostname_ip"
           }
         ],
         "Name":"$hostname",
