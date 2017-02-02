@@ -89,7 +89,7 @@ do
     fi
 
     echo "."
-    sleep 1
+    sleep 5
 done
 echo "... Done"
 exit 0

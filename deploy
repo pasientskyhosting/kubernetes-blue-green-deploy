@@ -64,7 +64,7 @@ do
       check=0
 
       echo "."
-      sleep 1
+      sleep 5
     fi
 
     if [ $(date +%s) -gt "$failtime" ];
