@@ -3,6 +3,9 @@ Blue Green deployment script
 
 This project in integrated into our Bamboo environment where we push code to bitbucket first. Then we do a blue green deployment on K8s
 
+# Requirements
+You need the kubectl commandline tool and the aws-cli tool installed on your bamboo server
+
 #Sample script 
 This script is from Bamboo that is run in the deploment process. It needs to get it's parameters from Consul. Should be fairly easy to translate them.
 
