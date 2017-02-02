@@ -52,6 +52,7 @@ cat autoscale.yaml deployment.yaml \
     | sed "s/{{ssh_key}}/$ssh_key/" \
     | sed "s|{{CONSUL_ENVIRONMENT}}|$CONSUL_ENVIRONMENT|" \
     | sed "s|{{CONSUL_APPLICATION}}|$CONSUL_APPLICATION|" \
+    | sed "s|{{parameters_file}}|$parameters_file|" \
     | sed "s/{{namespace}}/$namespace/" \
     | kubectl apply -f -
 
