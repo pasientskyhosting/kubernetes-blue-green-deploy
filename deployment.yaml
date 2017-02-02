@@ -42,11 +42,11 @@ spec:
             path: /healthz
             port: 80
             scheme: HTTP
-          initialDelaySeconds: 15
+          initialDelaySeconds: 60
           periodSeconds: 60
           failureThreshold: 3
           timeoutSeconds: 1
-          successThreshold: 2
+          successThreshold: 1
         env:
           - name: GIT_REPO
             value: {{git_repo}}
