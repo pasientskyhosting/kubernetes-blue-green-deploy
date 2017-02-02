@@ -77,19 +77,19 @@ fi
 rm $TMPFILE
 
 # Wait for dns to become active
-echo -n "Waiting for dns to become active ."
+echo "Waiting for dns to become active:"
 failtime=$(($(date +%s) + 5 * 60))
 while ! dig @8.8.8.8 "$hostname" | grep "$hostname" | grep "$hostname_ip" > /dev/null;
 do
 
     if [ $(date +%s) -gt "$failtime" ];
     then
-         echo " failed"
+         echo "... Failed"
          exit 1
     fi
 
-    echo -n "."
+    echo "."
     sleep 1
 done
-echo " done"
+echo "... Done"
 exit 0
