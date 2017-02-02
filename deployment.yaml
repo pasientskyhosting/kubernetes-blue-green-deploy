@@ -29,15 +29,17 @@ spec:
         name: {{deploy_name}}
         readinessProbe:
           httpGet:
-            path: /
+            path: /readiness
             port: 80
             scheme: HTTP
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
         livenessProbe:
           httpGet:
-            path: /
+            path: /healthz
             port: 80
             scheme: HTTP
-          initialDelaySeconds: 10
+          initialDelaySeconds: 15
           timeoutSeconds: 1
         env:
           - name: GIT_REPO
