@@ -9,11 +9,11 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
     # nginx params
     nginx.org/client-max-body-size: "100m"
-    nginx.org/http2: true
-    nginx.org/hsts: true
-    nginx.org/hsts-max-age: 2592000
-    nginx.org/hsts-include-subdomains: true
-    nginx.org/server-tokens: false
+    nginx.org/http2: "true"
+    nginx.org/hsts: "true"
+    nginx.org/hsts-max-age: "2592000"
+    nginx.org/hsts-include-subdomains: "true"
+    nginx.org/server-tokens: "false"
 spec:
   tls:
   - hosts:
