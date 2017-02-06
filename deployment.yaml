@@ -52,12 +52,6 @@ spec:
             value: {{git_repo}}
           - name: SSH_KEY
             value: {{ssh_key}}
-          - name: CONSUL_ENVIRONMENT
-            value: {{CONSUL_ENVIRONMENT}}
-          - name: CONSUL_APPLICATION
-            value: {{CONSUL_APPLICATION}}
-          - name: PARAMETERS_FILE
-            value: {{parameters_file}}
         resources:
           requests:
             cpu: 1000m #1000m = 1 cpu core
