@@ -4,7 +4,7 @@ metadata:
   labels:
     application: "wrk-{{application_name}}"
     build: "{{build_id}}"
-  name: {{deploy_name}}
+  name: "wrk-{{deploy_name}}"
   namespace: {{namespace}}
 spec:
   replicas: 1
