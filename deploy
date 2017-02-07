@@ -38,9 +38,11 @@ then
 fi
 
 has_worker=0
-if [ -f boot ] || [ -f WorkerBoot ] || [ -f bin/console ]; then
+if [ -f ../boot ] || [ -f ../WorkerBoot ] || [ -f ../bin/console ]; then
     has_worker=1
     echo "Deployment needs a worker too"
+else
+    echo "Deployment does not have a worker"
 fi
 
 # Get current config
