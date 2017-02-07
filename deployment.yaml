@@ -25,8 +25,6 @@ spec:
         build: "{{build_id}}"
         type: "application"
     spec:
-      hostname: {{application_name}}
-      subdomain: test
       containers:
       - image: {{image}}
         imagePullPolicy: Always
