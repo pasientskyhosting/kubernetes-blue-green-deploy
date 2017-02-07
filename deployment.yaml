@@ -25,6 +25,7 @@ spec:
         build: "{{build_id}}"
         type: "application"
     spec:
+      hostname: {{hostname}}
       containers:
       - image: {{image}}
         imagePullPolicy: Always

@@ -72,38 +72,6 @@ then
     exit 1
 fi
 
-cat > ${TMPFILE} << EOF
-{
-  "Comment":"$COMMENT",
-  "Changes":[
-    {
-      "Action":"UPSERT",
-      "ResourceRecordSet":{
-        "ResourceRecords":[
-          {
-            "Value":"10.50.41.200"
-          }
-        ],
-        "Name":"internal-$hostname",
-        "Type":"$TYPE",
-        "TTL":$TTL
-      }
-    }
-  ]
-}
-EOF
-
-echo "Creating internal dns record for internal-$hostname that points to ip 10.50.41.200"
-# Update the Hosted Zone record
-aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
-if [ $? -ne 0 ];
-then
-    echo "Failed to create dns record at Amazon"
-    # Clean up
-    rm $TMPFILE
-    exit 1
-fi
-
 # Clean up
 rm $TMPFILE
 

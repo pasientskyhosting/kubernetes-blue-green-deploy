@@ -60,6 +60,7 @@ cat autoscale.yaml deployment.yaml \
     | sed "s|{{git_repo}}|$git_repo|" \
     | sed "s/{{ssh_key}}/$ssh_key/" \
     | sed "s/{{namespace}}/$namespace/" \
+    | sed "s/{{hostname}}/$hostname/" \
     | kubectl apply -f -
 
 if [ $has_worker -eq 1 ]; then
