@@ -11,7 +11,7 @@ metadata:
     nginx.org/client-max-body-size: "100m"
     nginx.org/http2: "true"
     nginx.org/hsts: "true"
-    nginx.org/hsts-max-age: "2592000"
+    nginx.org/hsts-max-age: "15638400"
     nginx.org/hsts-include-subdomains: "true"
     nginx.org/server-tokens: "false"
 spec:
