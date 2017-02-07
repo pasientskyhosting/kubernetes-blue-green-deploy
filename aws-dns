@@ -93,7 +93,7 @@ cat > ${TMPFILE} << EOF
 }
 EOF
 
-echo "Creating internal dns record for $hostname that points to ip 10.50.41.200"
+echo "Creating internal dns record for internal-$hostname that points to ip 10.50.41.200"
 # Update the Hosted Zone record
 aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
 if [ $? -ne 0 ];

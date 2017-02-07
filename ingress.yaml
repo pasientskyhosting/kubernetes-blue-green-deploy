@@ -27,4 +27,11 @@ spec:
           serviceName: {{application_name}}
           servicePort: 80
         path: /
+  - host: internal-{{hostname}}
+    http:
+      paths:
+      - backend:
+          serviceName: {{application_name}}
+          servicePort: 80
+        path: /
 ---
