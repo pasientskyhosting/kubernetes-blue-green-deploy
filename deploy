@@ -73,16 +73,6 @@ if [ $has_worker -eq 1 ]; then
         | sed "s/{{ssh_key}}/$ssh_key/" \
         | sed "s/{{namespace}}/$namespace/" \
         | kubectl apply -f -
-
-    echo " ------ DEBUG ----- "
-    cat worker.yaml \
-        | sed "s/{{application_name}}/$application_name/" \
-        | sed "s/{{build_id}}/$build_id/" \
-        | sed "s/{{deploy_name}}/${application_name}-${build_id}/" \
-        | sed "s|{{image}}|$image|" \
-        | sed "s|{{git_repo}}|$git_repo|" \
-        | sed "s/{{ssh_key}}/$ssh_key/" \
-        | sed "s/{{namespace}}/$namespace/"
 fi
 
 echo "Waiting for ${application_name}-${build_id} to be available:"

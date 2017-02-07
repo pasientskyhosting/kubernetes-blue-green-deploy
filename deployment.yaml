@@ -4,6 +4,7 @@ metadata:
   labels:
     application: {{application_name}}
     build: "{{build_id}}"
+    type: "application"
   name: {{deploy_name}}
   namespace: {{namespace}}
 spec:
@@ -22,6 +23,7 @@ spec:
       labels:
         application: {{application_name}}
         build: "{{build_id}}"
+        type: "application"
     spec:
       containers:
       - image: {{image}}
