@@ -1,0 +1,63 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    application: "wrk-{{application_name}}"
+    build: "{{build_id}}"
+  name: {{deploy_name}}
+  namespace: {{namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: "wrk-{{application_name}}"
+      build: "{{build_id}}"
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        application: "wrk-{{application_name}}"
+        build: "{{build_id}}"
+    spec:
+      containers:
+      - image: pasientskyhosting/ps-worker:latest
+        imagePullPolicy: Always
+        name: "wrk-{{deploy_name}}"
+        # readinessProbe:
+        #   httpGet:
+        #     path: /readiness
+        #     port: 80
+        #     scheme: HTTP
+        #   initialDelaySeconds: 60
+        #   periodSeconds: 60
+        #   failureThreshold: 5
+        #   timeoutSeconds: 5
+        #   successThreshold: 2
+        # livenessProbe:
+        #   httpGet:
+        #     path: /healthz
+        #     port: 80
+        #     scheme: HTTP
+        #   initialDelaySeconds: 60
+        #   periodSeconds: 60
+        #   failureThreshold: 3
+        #   timeoutSeconds: 1
+        #   successThreshold: 1
+        env:
+          - name: GIT_REPO
+            value: {{git_repo}}
+          - name: SSH_KEY
+            value: {{ssh_key}}
+        resources:
+          requests:
+            cpu: 2000m #1000m = 1 cpu core
+        ports:
+        - containerPort: 80
+          protocol: TCP
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
