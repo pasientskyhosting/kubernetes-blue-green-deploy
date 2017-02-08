@@ -61,20 +61,8 @@ cat autoscale.yaml deployment.yaml \
     | sed "s/{{ssh_key}}/$ssh_key/" \
     | sed "s/{{namespace}}/$namespace/" \
     | sed "s/{{hostname}}/$hostname/" \
+    | sed "s/{{NEW_RELIC_LICENSE_KEY}}/$NEW_RELIC_LICENSE_KEY/" \
     | kubectl apply -f -
-
-if [ $has_worker -eq 1 ]; then
-    echo "Deploying worker"
-    cat worker.yaml \
-        | sed "s/{{application_name}}/$application_name/" \
-        | sed "s/{{build_id}}/$build_id/" \
-        | sed "s/{{deploy_name}}/${application_name}-${build_id}/" \
-        | sed "s|{{image}}|$image|" \
-        | sed "s|{{git_repo}}|$git_repo|" \
-        | sed "s/{{ssh_key}}/$ssh_key/" \
-        | sed "s/{{namespace}}/$namespace/" \
-        | kubectl apply -f -
-fi
 
 echo "Waiting for ${application_name}-${build_id} to be available:"
 check=0
@@ -84,15 +72,7 @@ do
     # check deployment
     check_app=`kubectl get deployment ${application_name}-${build_id} -o yaml --namespace=$namespace | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d ' ' | grep -Eo '[0-9]+'`
 
-    # check worker
-    if [ $has_worker -eq 1 ]; then
-        check_wrk=`kubectl get deployment wrk-${application_name}-${build_id} -o yaml --namespace=$namespace | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d ' ' | grep -Eo '[0-9]+'`
-    else
-        # deployment does not need worker, so its ok
-        check_wrk=1
-    fi
-
-    if [ "$check_app" == "" ] || [ "$check_wrk" == "" ];
+    if [ "$check_app" == "" ];
     then
         check=0
 
@@ -108,16 +88,56 @@ do
          echo "Going to cleanup"
          kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
          kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
-
-         if [ $has_worker -eq 1 ]; then
-             kubectl delete deployment wrk-${application_name}-${build_id} --namespace=$namespace
-         fi
-
          exit 1
     fi
 done
 
 echo ".. Done"
+
+# Worker
+if [ $has_worker -eq 1 ]; then
+
+    echo "Deploying worker"
+    cat worker.yaml \
+        | sed "s/{{application_name}}/$application_name/" \
+        | sed "s/{{build_id}}/$build_id/" \
+        | sed "s/{{deploy_name}}/${application_name}-${build_id}/" \
+        | sed "s|{{image}}|$image|" \
+        | sed "s|{{git_repo}}|$git_repo|" \
+        | sed "s/{{ssh_key}}/$ssh_key/" \
+        | sed "s/{{namespace}}/$namespace/" \
+        | sed "s/{{NEW_RELIC_LICENSE_KEY}}/$NEW_RELIC_LICENSE_KEY/" \
+        | kubectl apply -f -
+
+    echo "Waiting for wrk-${application_name}-${build_id} to be available:"
+    check=0
+    failtime=$(($(date +%s) + 5 * 60))
+    while [ $check -lt 1 ];
+    do
+        check_wrk=`kubectl get deployment wrk-${application_name}-${build_id} -o yaml --namespace=$namespace | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d ' ' | grep -Eo '[0-9]+'`
+
+        if [ "$check_wrk" == "" ];
+        then
+            check=0
+            echo "."
+            sleep 5
+        else
+            check=1
+        fi
+
+        if [ $(date +%s) -gt "$failtime" ];
+        then
+             echo "... Failed"
+             echo "Going to cleanup"
+             kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
+             kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
+             kubectl delete deployment wrk-${application_name}-${build_id} --namespace=$namespace
+             exit 1
+        fi
+    done
+
+    echo ".. Done"
+fi
 
 # Switch servide to point to new release
 echo "Switching to build id: $build_id"

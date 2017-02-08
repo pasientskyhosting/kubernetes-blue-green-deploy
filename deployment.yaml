@@ -54,6 +54,8 @@ spec:
             value: {{git_repo}}
           - name: SSH_KEY
             value: {{ssh_key}}
+          - name: NEW_RELIC_LICENSE_KEY
+            value: {{NEW_RELIC_LICENSE_KEY}}
         resources:
           requests:
             cpu: 1000m #1000m = 1 cpu core
