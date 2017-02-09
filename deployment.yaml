@@ -5,6 +5,8 @@ metadata:
     application: {{application_name}}
     build: "{{build_id}}"
     type: "application"
+    bamboo_deploy_release: "{{bamboo_deploy_release}}"
+    bamboo_deploy_project: "{{bamboo_deploy_project}}"
   name: {{deploy_name}}
   namespace: {{namespace}}
 spec:
@@ -24,6 +26,8 @@ spec:
         application: {{application_name}}
         build: "{{build_id}}"
         type: "application"
+        bamboo_deploy_release: "{{bamboo_deploy_release}}"
+        bamboo_deploy_project: "{{bamboo_deploy_project}}"
     spec:
       containers:
       - image: {{image}}
