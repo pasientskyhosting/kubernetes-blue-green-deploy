@@ -88,6 +88,7 @@ do
          echo "Going to cleanup"
          kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
          kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
+         kubectl delete rs ${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
          exit 1
     fi
 done
@@ -132,6 +133,8 @@ if [ $has_worker -eq 1 ]; then
              kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
              kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
              kubectl delete deployment wrk-${application_name}-${build_id} --namespace=$namespace
+             kubectl delete rs ${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
+             kubectl delete rs wrk-${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
              exit 1
         fi
     done
@@ -157,9 +160,23 @@ then
     kubectl delete deployment $current_release --namespace=$namespace
 fi
 
+# - delete replica
+kubectl get rs $current_release --namespace=$namespace > /dev/null 2>&1
+if [ $? -eq 0 ];
+then
+    kubectl delete rs $current_release --namespace=$namespace
+fi
+
 # - delete deployment worker if it exits
 kubectl get deployment wrk-$current_release --namespace=$namespace > /dev/null 2>&1
 if [ $? -eq 0 ];
 then
     kubectl delete deployment wrk-$current_release --namespace=$namespace
+fi
+
+# - delete deployment worker if it exits
+kubectl get rs wrk-$current_release --namespace=$namespace > /dev/null 2>&1
+if [ $? -eq 0 ];
+then
+    kubectl delete rs wrk-$current_release --namespace=$namespace
 fi
