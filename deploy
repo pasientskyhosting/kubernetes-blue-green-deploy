@@ -63,7 +63,6 @@ cat autoscale.yaml deployment.yaml \
     | sed "s/{{hostname}}/$hostname/" \
     | sed "s/{{NEW_RELIC_LICENSE_KEY}}/$NEW_RELIC_LICENSE_KEY/" \
     | sed "s/{{bamboo_deploy_release}}/$bamboo_deploy_release/" \
-    | sed "s/{{bamboo_deploy_project}}/$bamboo_deploy_project/" \
     | kubectl apply -f -
 
 echo "Waiting for ${application_name}-${build_id} to be available:"
@@ -111,7 +110,6 @@ if [ $has_worker -eq 1 ]; then
         | sed "s/{{namespace}}/$namespace/" \
         | sed "s/{{NEW_RELIC_LICENSE_KEY}}/$NEW_RELIC_LICENSE_KEY/" \
         | sed "s/{{bamboo_deploy_release}}/$bamboo_deploy_release/" \
-        | sed "s/{{bamboo_deploy_project}}/$bamboo_deploy_project/" \
         | kubectl apply -f -
 
     echo "Waiting for wrk-${application_name}-${build_id} to be available:"

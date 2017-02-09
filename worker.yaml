@@ -6,7 +6,6 @@ metadata:
     build: "{{build_id}}"
     type: "worker"
     bamboo_deploy_release: "{{bamboo_deploy_release}}"
-    bamboo_deploy_project: "{{bamboo_deploy_project}}"
   name: "wrk-{{deploy_name}}"
   namespace: {{namespace}}
 spec:
@@ -27,7 +26,6 @@ spec:
         build: "{{build_id}}"
         type: "worker"
         bamboo_deploy_release: "{{bamboo_deploy_release}}"
-        bamboo_deploy_project: "{{bamboo_deploy_project}}"
     spec:
       containers:
       - image: pasientskyhosting/ps-worker:latest
