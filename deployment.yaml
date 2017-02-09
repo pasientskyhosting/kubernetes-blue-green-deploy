@@ -58,7 +58,7 @@ spec:
             value: {{NEW_RELIC_LICENSE_KEY}}
         resources:
           requests:
-            cpu: 200m #1000m = 1 cpu core
+            cpu: 100m #1000m = 1 cpu core
         ports:
         - containerPort: 80
           protocol: TCP
