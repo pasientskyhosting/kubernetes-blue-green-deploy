@@ -28,7 +28,7 @@ spec:
         bamboo_deploy_release: "{{bamboo_deploy_release}}"
     spec:
       containers:
-      - image: pasientskyhosting/ps-worker:latest
+      - image: {{image}}
         imagePullPolicy: Always
         name: "wrk-{{deploy_name}}"
         # readinessProbe:

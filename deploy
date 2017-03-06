@@ -99,12 +99,21 @@ echo ".. Done"
 # Worker
 if [ $has_worker -eq 1 ]; then
 
+    if [ "$worker_image" == "" ];
+    then
+        echo "Missing docker image to use for worker"  1>&2
+        kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
+        kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
+        kubectl delete rs ${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
+        exit 1
+    fi
+
     echo "Deploying worker"
     cat worker.yaml \
         | sed "s/{{application_name}}/$application_name/" \
         | sed "s/{{build_id}}/$build_id/" \
         | sed "s/{{deploy_name}}/${application_name}-${build_id}/" \
-        | sed "s|{{image}}|$image|" \
+        | sed "s|{{image}}|$worker_image|" \
         | sed "s|{{git_repo}}|$git_repo|" \
         | sed "s/{{ssh_key}}/$ssh_key/" \
         | sed "s/{{namespace}}/$namespace/" \
