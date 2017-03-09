@@ -44,8 +44,16 @@ cat ingress.yaml \
     | sed "s/{{namespace}}/$namespace/" \
     | kubectl $method -f -
 
+# Check for klinikk portal
 if [ "$application_name" == "portal" ];
 then
+    method="apply"
+    kubectl get ingress "$application_name-klinikk" --namespace=$namespace > /dev/null 2>&1
+    if [ $? -eq 0 ];
+    then
+        method="replace"
+    fi
+
     cat ingress-klinikk.yaml \
         | sed "s/{{application_name}}/$application_name/" \
         | sed "s/{{namespace}}/$namespace/" \
