@@ -24,7 +24,8 @@ then
 fi
 
 # add hostnames
-array=(`echo $string | sed 's/,/\n/g'`)
+array=(`echo $hostname | sed 's/,/\n/g'`)
+
 echo -e "  tls:"
 for line in "${array[@]}"
 do
