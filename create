@@ -26,17 +26,17 @@ fi
 # add hostnames
 array=(`echo $hostname | sed 's/,/\n/g'`)
 
-echo -e "  tls:"
+echo -e "  tls:" >> ingress.yaml
 for line in "${array[@]}"
 do
-  echo -e "  - hosts:\n    - \"$line\"\n    secretName: $line\n"
+  echo -e "  - hosts:\n    - \"$line\"\n    secretName: $line\n" >> ingress.yaml
 done
 
-echo -e "  rules:"
+echo -e "  rules:" >> ingress.yaml
 
 for line in "${array[@]}"
 do
-  echo -e "  - host: $line\n    http:\n      paths:\n      - backend:\n          serviceName: {{application_name}}\n          servicePort: 80\n        path: /"
+  echo -e "  - host: $line\n    http:\n      paths:\n      - backend:\n          serviceName: {{application_name}}\n          servicePort: 80\n        path: /" >> ingress.yaml
 done
 
 cat ingress.yaml \
