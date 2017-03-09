@@ -39,6 +39,11 @@ if ! valid_ip $hostname_ip; then
     exit 1
 fi
 
+# Add clinic url
+if [ "$application_name" == "portal" ];
+    hostname="$hostname,*.klinikk-hptest.gel.camp"
+fi
+
 array=(`echo $hostname | sed 's/,/\n/g'`)
 for line in "${array[@]}"
 do

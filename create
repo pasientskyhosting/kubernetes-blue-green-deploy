@@ -44,6 +44,13 @@ cat ingress.yaml \
     | sed "s/{{namespace}}/$namespace/" \
     | kubectl $method -f -
 
+if [ "$application_name" == "portal" ];
+    cat ingress-klinikk.yaml \
+        | sed "s/{{application_name}}/$application_name/" \
+        | sed "s/{{namespace}}/$namespace/" \
+        | kubectl $method -f -
+fi
+
 method="apply"
 cluster_ip=""
 build_id=0
