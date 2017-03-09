@@ -39,56 +39,64 @@ if ! valid_ip $hostname_ip; then
     exit 1
 fi
 
-TMPFILE=$(mktemp /tmp/temporary-file.XXXXXXXX)
-cat > ${TMPFILE} << EOF
-{
-  "Comment":"$COMMENT",
-  "Changes":[
-    {
-      "Action":"UPSERT",
-      "ResourceRecordSet":{
-        "ResourceRecords":[
-          {
-            "Value":"$hostname_ip"
-          }
-        ],
-        "Name":"$hostname",
-        "Type":"$TYPE",
-        "TTL":$TTL
-      }
-    }
-  ]
-}
-EOF
-
-echo "Creating dns record for $hostname that points to ip $hostname_ip"
-# Update the Hosted Zone record
-aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
-if [ $? -ne 0 ];
-then
-    echo "Failed to create dns record at Amazon"
-    # Clean up
-    rm $TMPFILE
-    exit 1
-fi
-
-# Clean up
-rm $TMPFILE
-
-# Wait for dns to become active
-echo "Waiting for dns to become active:"
-failtime=$(($(date +%s) + 5 * 60))
-while ! dig @8.8.8.8 "$hostname" | grep "$hostname" | grep "$hostname_ip" > /dev/null;
+array=(`echo $hostname | sed 's/,/\n/g'`)
+for line in "${array[@]}"
 do
 
-    if [ $(date +%s) -gt "$failtime" ];
+    TMPFILE=$(mktemp /tmp/temporary-file.XXXXXXXX)
+    cat > ${TMPFILE} << EOF
+    {
+      "Comment":"$COMMENT",
+      "Changes":[
+        {
+          "Action":"UPSERT",
+          "ResourceRecordSet":{
+            "ResourceRecords":[
+              {
+                "Value":"$hostname_ip"
+              }
+            ],
+            "Name":"$line",
+            "Type":"$TYPE",
+            "TTL":$TTL
+          }
+        }
+      ]
+    }
+    EOF
+
+    echo "Creating dns record for $line that points to ip $hostname_ip"
+    # Update the Hosted Zone record
+    aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
+    if [ $? -ne 0 ];
     then
-         echo "... Failed"
-         exit 1
+        echo "Failed to create dns record at Amazon"
+        # Clean up
+        rm $TMPFILE
+        exit 1
     fi
 
-    echo "."
-    sleep 5
+    # Clean up
+    rm $TMPFILE
+
+    # Wait for dns to become active
+    echo "Waiting for dns to become active:"
+    failtime=$(($(date +%s) + 5 * 60))
+    while ! dig @8.8.8.8 "$line" | grep "$line" | grep "$hostname_ip" > /dev/null;
+    do
+
+        if [ $(date +%s) -gt "$failtime" ];
+        then
+             echo "... Failed"
+             exit 1
+        fi
+
+        echo "."
+        sleep 5
+    done
+    echo "... Done"
+
 done
-echo "... Done"
+
+
 exit 0

@@ -15,16 +15,3 @@ metadata:
     nginx.org/hsts-include-subdomains: "true"
     nginx.org/server-tokens: "false"
 spec:
-  tls:
-  - hosts:
-    - "{{hostname}}"
-    secretName: {{hostname}}
-  rules:
-  - host: {{hostname}}
-    http:
-      paths:
-      - backend:
-          serviceName: {{application_name}}
-          servicePort: 80
-        path: /
----

@@ -23,10 +23,16 @@ then
     method="replace"
 fi
 
+# add hostnames
+array=(`echo $hostname | sed 's/,/\n/g'`)
+for line in "${array[@]}"
+do
+  echo -e "  tls:\n  - hosts:\n    - \"$line\"\n    secretName: $line\n  rules:\n  - host: $line\n    http:\n      paths:\n      - backend:\n          serviceName: {{application_name}}\nservicePort: 80\n        path: /" >> ingress.yaml
+done
+
 cat ingress.yaml \
     | sed "s/{{application_name}}/$application_name/" \
     | sed "s/{{namespace}}/$namespace/" \
-    | sed "s/{{hostname}}/$hostname/" \
     | kubectl $method -f -
 
 method="apply"
@@ -44,7 +50,6 @@ fi
 cat service.yaml \
     | sed "s/{{application_name}}/$application_name/" \
     | sed "s/{{namespace}}/$namespace/" \
-    | sed "s/{{hostname}}/$hostname/" \
     | sed "s/{{cluster_ip}}/$cluster_ip/" \
     | sed "s/{{build_id}}/$build_id/" \
     | kubectl $method -f -
