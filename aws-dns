@@ -44,26 +44,26 @@ for line in "${array[@]}"
 do
 
     TMPFILE=$(mktemp /tmp/temporary-file.XXXXXXXX)
-    cat > ${TMPFILE} << EOF
+cat > ${TMPFILE} << EOF
+{
+  "Comment":"$COMMENT",
+  "Changes":[
     {
-      "Comment":"$COMMENT",
-      "Changes":[
-        {
-          "Action":"UPSERT",
-          "ResourceRecordSet":{
-            "ResourceRecords":[
-              {
-                "Value":"$hostname_ip"
-              }
-            ],
-            "Name":"$line",
-            "Type":"$TYPE",
-            "TTL":$TTL
+      "Action":"UPSERT",
+      "ResourceRecordSet":{
+        "ResourceRecords":[
+          {
+            "Value":"$hostname_ip"
           }
-        }
-      ]
+        ],
+        "Name":"$line",
+        "Type":"$TYPE",
+        "TTL":$TTL
+      }
     }
-    EOF
+  ]
+}
+EOF
 
     echo "Creating dns record for $line that points to ip $hostname_ip"
     # Update the Hosted Zone record
