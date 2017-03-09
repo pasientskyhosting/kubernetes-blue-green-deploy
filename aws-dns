@@ -41,6 +41,7 @@ fi
 
 # Add clinic url
 if [ "$application_name" == "portal" ];
+then
     hostname="$hostname,*.klinikk-hptest.gel.camp"
 fi
 
