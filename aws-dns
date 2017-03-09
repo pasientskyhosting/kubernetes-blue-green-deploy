@@ -40,9 +40,9 @@ if ! valid_ip $hostname_ip; then
 fi
 
 # Add clinic url
-if [ "$application_name" == "portal" ];
+if [ $has_clinic_site -eq 1 ];
 then
-    hostname="$hostname,*.klinikk-hptest.gel.camp"
+    hostname="$hostname,$aws_hostname_clinic"
 fi
 
 array=(`echo $hostname | sed 's/,/\n/g'`)

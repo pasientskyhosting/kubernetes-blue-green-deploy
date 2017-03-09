@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{application_name}}-klinikk
+  name: {{application_name}}-clinics
   namespace: {{namespace}}
   annotations:
     # enable kube-lego for this ingress
@@ -17,10 +17,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - "*.klinikk-hptest.gel.camp"
-    secretName: star.klinikk-hptest.gel.camp
+    - "{{hostname}}"
+    secretName: {{cert}}
   rules:
-  - host: "*.klinikk-hptest.gel.camp"
+  - host: "{{hostname}}"
     http:
       paths:
       - backend:
