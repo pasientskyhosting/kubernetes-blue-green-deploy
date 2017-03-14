@@ -1,6 +1,15 @@
 #!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+function cleanup()
+{
+    echo "I got canceled"
+}
+trap "cleanup" SIGKILL SIGTERM SIGHUP SIGINT EXIT
+
+echo "Want to try to see if trap works?"
+sleep 5
+
 if [ ! -f config ];
 then
     echo "Missing config file" 1>&2
