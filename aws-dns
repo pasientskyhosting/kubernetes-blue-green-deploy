@@ -49,9 +49,9 @@ array=(`echo $hostname | sed 's/,/\n/g'`)
 for line in "${array[@]}"
 do
 
-    if dig @8.8.8.8 "$line" | grep "$line" | grep "$hostname_ip";
+    if dig @8.8.8.8 "$line" | grep "$line" | grep "$hostname_ip" > /dev/null;
     then
-        echo "DNS record $line already points to $hostname_ip"
+        echo "DNS record $line already points to $hostname_ip . No need to update it at AWS"
         continue
     fi
 
