@@ -91,7 +91,7 @@ do
     then
          echo "... Failed"
          echo "Going to cleanup"
-         kubectl delete service $current_release --namespace=$namespace
+         kubectl delete service ${application_name}-${build_id} --namespace=$namespace
          kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
          kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
          kubectl delete rs ${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
@@ -107,7 +107,7 @@ if [ $has_worker -eq 1 ]; then
     if [ "$worker_image" == "" ];
     then
         echo "Missing docker image to use for worker"  1>&2
-        kubectl delete service $current_release --namespace=$namespace
+        kubectl delete service ${application_name}-${build_id} --namespace=$namespace
         kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
         kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
         kubectl delete rs ${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
@@ -152,7 +152,7 @@ if [ $has_worker -eq 1 ]; then
         then
              echo "... Failed"
              echo "Going to cleanup"
-             kubectl delete service $current_release --namespace=$namespace
+             kubectl delete service ${application_name}-${build_id} --namespace=$namespace
              kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
              kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
              kubectl delete deployment wrk-${application_name}-${build_id} --namespace=$namespace
