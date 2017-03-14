@@ -16,7 +16,7 @@ then
     exit 1
 fi
 
-kubectl get service $application_name --namespace=$namespace > /dev/null 2>&1
+kubectl get service $application_name-${build_id} --namespace=$namespace > /dev/null 2>&1
 if [ $? -ne 0 ];
 then
     echo "Service for application does not exists" 1>&2
