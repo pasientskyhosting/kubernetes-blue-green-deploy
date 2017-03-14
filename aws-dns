@@ -49,6 +49,12 @@ array=(`echo $hostname | sed 's/,/\n/g'`)
 for line in "${array[@]}"
 do
 
+    if dig @8.8.8.8 "$line" | grep "$line" | grep "$hostname_ip";
+    then
+        echo "DNS record $line already points to $hostname_ip"
+        continue
+    fi
+
     TMPFILE=$(mktemp /tmp/temporary-file.XXXXXXXX)
 cat > ${TMPFILE} << EOF
 {
@@ -73,7 +79,7 @@ EOF
 
     echo "Creating dns record for $line that points to ip $hostname_ip"
     # Update the Hosted Zone record
-    aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
+    aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE" --debug
     if [ $? -ne 0 ];
     then
         echo "Failed to create dns record at Amazon"
