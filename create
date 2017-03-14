@@ -75,13 +75,13 @@ fi
 
 method="apply"
 cluster_ip=""
-kubectl get service $application_name-$build_id --namespace=$namespace > /dev/null 2>&1
+kubectl get service $application_name --namespace=$namespace > /dev/null 2>&1
 if [ $? -eq 0 ];
 then
     echo "Service for application already exists" 1>&2
     method="replace"
-    cluster_ip="`kubectl get service $application_name-$build_id -o yaml --namespace=$namespace | grep 'clusterIP:' | cut -d ':' -f 2 | tr -d ' '`"
-    build_id="`kubectl get service $application_name-$build_id -o yaml --namespace=$namespace | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'`"
+    cluster_ip="`kubectl get service $application_name -o yaml --namespace=$namespace | grep 'clusterIP:' | cut -d ':' -f 2 | tr -d ' '`"
+    build_id="`kubectl get service $application_name -o yaml --namespace=$namespace | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'`"
 fi
 
 cat service.yaml \
