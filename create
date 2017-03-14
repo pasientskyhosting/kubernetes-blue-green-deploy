@@ -49,7 +49,7 @@ cat ingress.yaml \
 if [ $has_clinic_site -eq 1 ];
 then
     method="apply"
-    kubectl get ingress "$application_name-klinikk" --namespace=$namespace > /dev/null 2>&1
+    kubectl get ingress "$application_name-clinics" --namespace=$namespace > /dev/null 2>&1
     if [ $? -eq 0 ];
     then
         method="replace"

@@ -123,11 +123,11 @@ if [ $has_worker -eq 1 ]; then
         | sed "s|{{git_repo}}|$git_repo|" \
         | sed "s/{{ssh_key}}/$ssh_key/" \
         | sed "s/{{namespace}}/$namespace/" \
-        | sed "s/{{CONSUL_URL}}/$bamboo_CONSUL_URL/" \
-        | sed "s/{{CONSUL_USERNAME}}/$bamboo_CONSUL_USERNAME/" \
-        | sed "s/{{CONSUL_PASSWORD}}/$bamboo_CONSUL_PASSWORD/" \
-        | sed "s/{{CONSUL_APPLICATION}}/$bamboo_CONSUL_APPLICATION/" \
-        | sed "s/{{CONSUL_ENVIRONMENT}}/$bamboo_CONSUL_ENVIRONMENT/" \
+        | sed "s|{{CONSUL_URL}}|$bamboo_CONSUL_URL|" \
+        | sed "s|{{CONSUL_USERNAME}}|$bamboo_CONSUL_USERNAME|" \
+        | sed "s|{{CONSUL_PASSWORD}}|$bamboo_CONSUL_PASSWORD|" \
+        | sed "s|{{CONSUL_APPLICATION}}|$bamboo_CONSUL_APPLICATION|" \
+        | sed "s|{{CONSUL_ENVIRONMENT}}|$bamboo_CONSUL_ENVIRONMENT|" \
         | sed "s/{{NEW_RELIC_LICENSE_KEY}}/$NEW_RELIC_LICENSE_KEY/" \
         | sed "s/{{bamboo_deploy_release}}/$bamboo_deploy_release/" \
         | kubectl apply -f -
