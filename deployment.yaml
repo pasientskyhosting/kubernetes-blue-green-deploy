@@ -52,6 +52,16 @@ spec:
           timeoutSeconds: 1
           successThreshold: 1
         env:
+          - name: PS_CONSUL_URL
+            value: {{CONSUL_URL}}
+          - name: PS_CONSUL_USERNAME
+            value: {{CONSUL_USERNAME}}
+          - name: PS_CONSUL_PASSWORD
+            value: {{CONSUL_PASSWORD}}
+          - name: PS_CONSUL_APPLICATION
+            value: {{CONSUL_APPLICATION}}
+          - name: PS_CONSUL_ENVIRONMENT
+            value: {{CONSUL_ENVIRONMENT}}
           - name: GIT_REPO
             value: {{git_repo}}
           - name: SSH_KEY

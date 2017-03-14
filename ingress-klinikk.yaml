@@ -24,7 +24,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: {{application_name}}
+          serviceName: "{{application_name}}-{{build_id}}"
           servicePort: 80
         path: /
 ---

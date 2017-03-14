@@ -46,7 +46,7 @@ else
 fi
 
 # Get current config
-current_service_build="`kubectl get service $application_name -o yaml --namespace=$namespace | grep build:`"
+current_service_build="`kubectl get ingress $application_name -o yaml --namespace=$namespace | grep -m 1 serviceName:`"
 current_build_id=`echo $current_service_build | cut -d ":" -f 2 | tr -d ' ' | tr -d '"'`
 current_release="${application_name}-${current_build_id}"
 
@@ -60,6 +60,11 @@ cat autoscale.yaml deployment.yaml \
     | sed "s|{{git_repo}}|$git_repo|" \
     | sed "s/{{ssh_key}}/$ssh_key/" \
     | sed "s/{{namespace}}/$namespace/" \
+    | sed "s/{{CONSUL_URL}}/$bamboo_CONSUL_URL/" \
+    | sed "s/{{CONSUL_USERNAME}}/$bamboo_CONSUL_USERNAME/" \
+    | sed "s/{{CONSUL_PASSWORD}}/$bamboo_CONSUL_PASSWORD/" \
+    | sed "s/{{CONSUL_APPLICATION}}/$bamboo_CONSUL_APPLICATION/" \
+    | sed "s/{{CONSUL_ENVIRONMENT}}/$bamboo_CONSUL_ENVIRONMENT/" \
     | sed "s/{{NEW_RELIC_LICENSE_KEY}}/$NEW_RELIC_LICENSE_KEY/" \
     | sed "s/{{bamboo_deploy_release}}/$bamboo_deploy_release/" \
     | kubectl apply -f -
@@ -116,6 +121,11 @@ if [ $has_worker -eq 1 ]; then
         | sed "s|{{git_repo}}|$git_repo|" \
         | sed "s/{{ssh_key}}/$ssh_key/" \
         | sed "s/{{namespace}}/$namespace/" \
+        | sed "s/{{CONSUL_URL}}/$bamboo_CONSUL_URL/" \
+        | sed "s/{{CONSUL_USERNAME}}/$bamboo_CONSUL_USERNAME/" \
+        | sed "s/{{CONSUL_PASSWORD}}/$bamboo_CONSUL_PASSWORD/" \
+        | sed "s/{{CONSUL_APPLICATION}}/$bamboo_CONSUL_APPLICATION/" \
+        | sed "s/{{CONSUL_ENVIRONMENT}}/$bamboo_CONSUL_ENVIRONMENT/" \
         | sed "s/{{NEW_RELIC_LICENSE_KEY}}/$NEW_RELIC_LICENSE_KEY/" \
         | sed "s/{{bamboo_deploy_release}}/$bamboo_deploy_release/" \
         | kubectl apply -f -
@@ -154,7 +164,7 @@ fi
 
 # Switch servide to point to new release
 echo "Switching to build id: $build_id"
-kubectl get services $application_name -o yaml --namespace=$namespace | sed "s/build:.*$/build: \"$build_id\"/" | kubectl replace -f -
+kubectl get ingress $application_name -o yaml --namespace=$namespace | sed "s/build:.*$/build: \"$build_id\"/" | kubectl replace -f -
 
 # - delete autoscale
 kubectl get hpa $current_release --namespace=$namespace > /dev/null 2>&1
