@@ -60,11 +60,11 @@ cat autoscale.yaml deployment.yaml \
     | sed "s|{{git_repo}}|$git_repo|" \
     | sed "s/{{ssh_key}}/$ssh_key/" \
     | sed "s/{{namespace}}/$namespace/" \
-    | sed "s/{{CONSUL_URL}}/$bamboo_CONSUL_URL/" \
-    | sed "s/{{CONSUL_USERNAME}}/$bamboo_CONSUL_USERNAME/" \
-    | sed "s/{{CONSUL_PASSWORD}}/$bamboo_CONSUL_PASSWORD/" \
-    | sed "s/{{CONSUL_APPLICATION}}/$bamboo_CONSUL_APPLICATION/" \
-    | sed "s/{{CONSUL_ENVIRONMENT}}/$bamboo_CONSUL_ENVIRONMENT/" \
+    | sed "s|{{CONSUL_URL}}|$bamboo_CONSUL_URL|" \
+    | sed "s|{{CONSUL_USERNAME}}|$bamboo_CONSUL_USERNAME|" \
+    | sed "s|{{CONSUL_PASSWORD}}|$bamboo_CONSUL_PASSWORD|" \
+    | sed "s|{{CONSUL_APPLICATION}}|$bamboo_CONSUL_APPLICATION|" \
+    | sed "s|{{CONSUL_ENVIRONMENT}}|$bamboo_CONSUL_ENVIRONMENT|" \
     | sed "s/{{NEW_RELIC_LICENSE_KEY}}/$NEW_RELIC_LICENSE_KEY/" \
     | sed "s/{{bamboo_deploy_release}}/$bamboo_deploy_release/" \
     | kubectl apply -f -
@@ -91,6 +91,7 @@ do
     then
          echo "... Failed"
          echo "Going to cleanup"
+         kubectl delete service $current_release --namespace=$namespace
          kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
          kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
          kubectl delete rs ${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
@@ -106,6 +107,7 @@ if [ $has_worker -eq 1 ]; then
     if [ "$worker_image" == "" ];
     then
         echo "Missing docker image to use for worker"  1>&2
+        kubectl delete service $current_release --namespace=$namespace
         kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
         kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
         kubectl delete rs ${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
@@ -150,6 +152,7 @@ if [ $has_worker -eq 1 ]; then
         then
              echo "... Failed"
              echo "Going to cleanup"
+             kubectl delete service $current_release --namespace=$namespace
              kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
              kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
              kubectl delete deployment wrk-${application_name}-${build_id} --namespace=$namespace
@@ -165,6 +168,13 @@ fi
 # Switch servide to point to new release
 echo "Switching to build id: $build_id"
 kubectl get ingress $application_name -o yaml --namespace=$namespace | sed "s/build:.*$/build: \"$build_id\"/" | kubectl replace -f -
+
+# - delete service
+kubectl get service $current_release --namespace=$namespace > /dev/null 2>&1
+if [ $? -eq 0 ];
+then
+    kubectl delete service $current_release --namespace=$namespace
+fi
 
 # - delete autoscale
 kubectl get hpa $current_release --namespace=$namespace > /dev/null 2>&1
