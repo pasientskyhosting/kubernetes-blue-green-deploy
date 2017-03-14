@@ -5,7 +5,7 @@ function cleanup()
 {
     echo "I got canceled"
 }
-trap "cleanup" SIGKILL SIGTERM SIGHUP SIGINT EXIT
+trap "cleanup" SIGKILL SIGTERM SIGHUP SIGINT
 
 echo "Want to try to see if trap works?"
 sleep 5
