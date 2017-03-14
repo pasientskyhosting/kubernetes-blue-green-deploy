@@ -45,7 +45,7 @@ echo -e "  rules:" >> ingress.yaml
 
 for line in "${array[@]}"
 do
-  echo -e "  - host: $line\n    http:\n      paths:\n      - backend:\n          serviceName: {{application_name}}-{{build_id}}\n          servicePort: 80\n        path: /" >> ingress.yaml
+  echo -e "  - host: $line\n    http:\n      paths:\n      - backend:\n          serviceName: {{application_name}}\n          servicePort: 80\n        path: /" >> ingress.yaml
 done
 
 cat ingress.yaml \
