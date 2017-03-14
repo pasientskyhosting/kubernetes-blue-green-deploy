@@ -107,7 +107,8 @@ EOF
         sleep 5
     done
     echo "... Done"
-
+    
+    sleep 5
 done
 
 

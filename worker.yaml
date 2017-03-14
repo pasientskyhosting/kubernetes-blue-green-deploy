@@ -58,9 +58,9 @@ spec:
             value: {{CONSUL_USERNAME}}
           - name: PS_CONSUL_PASSWORD
             value: {{CONSUL_PASSWORD}}
-          - name: PS_CONSUL_APPLICATION
+          - name: PS_APPLICATION
             value: {{CONSUL_APPLICATION}}
-          - name: PS_CONSUL_ENVIRONMENT
+          - name: PS_ENVIRONMENT
             value: {{CONSUL_ENVIRONMENT}}
           - name: PS_BUILD_ID
             value: {{build_id}}

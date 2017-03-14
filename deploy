@@ -48,7 +48,7 @@ fi
 
 # Get current config
 current_service_build="`kubectl get service $application_name -o yaml --namespace=$namespace | grep build:`"
-#current_service_build="`kubectl get service $application_name -o yaml --namespace=$namespace | grep -m 1 build:`"
+#current_service_build="`kubectl get ingress $application_name -o yaml --namespace=$namespace | grep -m 1 build:`"
 current_build_id=`echo $current_service_build | cut -d ":" -f 2 | tr -d ' ' | tr -d '"'`
 current_release="${application_name}-${current_build_id}"
 
@@ -93,7 +93,7 @@ do
     then
          echo "... Failed"
          echo "Going to cleanup"
-         #kubectl delete service ${application_name}-${build_id} --namespace=$namespace
+         kubectl delete service ${application_name}-${build_id} --namespace=$namespace
          kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
          kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
          kubectl delete rs ${application_name}-${build_id} --namespace=$namespace > /dev/null 2>&1
@@ -154,7 +154,7 @@ if [ $has_worker -eq 1 ]; then
         then
              echo "... Failed"
              echo "Going to cleanup"
-             #kubectl delete service ${application_name}-${build_id} --namespace=$namespace
+             kubectl delete service ${application_name}-${build_id} --namespace=$namespace
              kubectl delete hpa ${application_name}-${build_id} --namespace=$namespace
              kubectl delete deployment ${application_name}-${build_id} --namespace=$namespace
              kubectl delete deployment wrk-${application_name}-${build_id} --namespace=$namespace
@@ -173,11 +173,11 @@ echo "Switching to build id: $build_id"
 kubectl get service $application_name -o yaml --namespace=$namespace | sed "s/build:.*$/build: \"$build_id\"/" | kubectl replace -f -
 
 # - delete service
-#kubectl get service $current_release --namespace=$namespace > /dev/null 2>&1
-#if [ $? -eq 0 ];
-#then
-#    kubectl delete service $current_release --namespace=$namespace
-#fi
+kubectl get service $current_release --namespace=$namespace > /dev/null 2>&1
+if [ $? -eq 0 ];
+then
+    kubectl delete service $current_release --namespace=$namespace
+fi
 
 # - delete autoscale
 kubectl get hpa $current_release --namespace=$namespace > /dev/null 2>&1

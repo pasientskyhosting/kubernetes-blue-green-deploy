@@ -14,3 +14,19 @@ spec:
     build: "{{build_id}}"
   sessionAffinity: None
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{application_name}}-{{build_id}}"
+  namespace: {{namespace}}
+spec:
+  clusterIP: {{cluster_ip}}
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    application: "{{application_name}}"
+    build: "{{build_id}}"
+  sessionAffinity: None
+---
