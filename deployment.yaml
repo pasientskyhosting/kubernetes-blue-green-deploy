@@ -62,6 +62,8 @@ spec:
             value: {{CONSUL_APPLICATION}}
           - name: PS_CONSUL_ENVIRONMENT
             value: {{CONSUL_ENVIRONMENT}}
+          - name: PS_BUILD_ID
+            value: {{build_id}}
           - name: GIT_REPO
             value: {{git_repo}}
           - name: SSH_KEY
