@@ -65,7 +65,7 @@ spec:
           - name: PS_BUILD_ID
             value: {{build_id}}
           - name: PS_BUILD_NR
-            value: {{build_nr}}
+            value: "{{build_nr}}"
           - name: GIT_REPO
             value: {{git_repo}}
           - name: SSH_KEY
