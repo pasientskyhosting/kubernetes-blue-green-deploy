@@ -1,8 +1,8 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{application_name}}-clinics
-  namespace: {{namespace}}
+  name: "{{application_name}}-clinics"
+  namespace: "{{namespace}}"
   annotations:
     # enable kube-lego for this ingress
     kubernetes.io/tls-acme: "false"
@@ -18,7 +18,7 @@ spec:
   tls:
   - hosts:
     - "{{hostname}}"
-    secretName: {{cert}}
+    secretName: "{{cert}}"
   rules:
   - host: "{{hostname}}"
     http:
