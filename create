@@ -8,7 +8,7 @@ function cleanup()
 trap "cleanup" SIGKILL SIGTERM SIGHUP SIGINT
 
 echo "Want to try to see if trap works?"
-sleep 5
+sleep 15
 
 if [ ! -f config ];
 then
@@ -17,48 +17,19 @@ then
 fi
 source config
 
-kubectl get namespace $namespace > /dev/null 2>&1
+kubectl get namespace $bamboo_CONSUL_ENVIRONMENT > /dev/null 2>&1
 if [ $? -ne 0 ];
 then
-    kubectl create namespace $namespace
-    echo "Created namespace $namespace in cluster"
+    kubectl create namespace $bamboo_CONSUL_ENVIRONMENT
+    echo "Created namespace $bamboo_CONSUL_ENVIRONMENT in cluster"
 fi
 
-method="apply"
-kubectl get ingress $application_name --namespace=$namespace > /dev/null 2>&1
-if [ $? -eq 0 ];
-then
-    echo "Ingress controller for application already exists" 1>&2
-    method="replace"
-fi
-
-# add hostnames
-array=(`echo $hostname | sed 's/,/\n/g'`)
-
-echo -e "  tls:" >> ingress.yaml
-for line in "${array[@]}"
-do
-  echo -e "  - hosts:\n    - \"$line\"\n    secretName: $line\n" >> ingress.yaml
-done
-
-echo -e "  rules:" >> ingress.yaml
-
-for line in "${array[@]}"
-do
-  echo -e "  - host: $line\n    http:\n      paths:\n      - backend:\n          serviceName: {{application_name}}\n          servicePort: 80\n        path: /" >> ingress.yaml
-done
-
-cat ingress.yaml \
-    | sed "s/{{application_name}}/$application_name/" \
-    | sed "s/{{namespace}}/$namespace/" \
-    | sed "s/{{build_id}}/$build_id/" \
-    | kubectl $method -f -
 
 # Check for klinikk portal
 if [ $has_clinic_site -eq 1 ];
 then
     method="apply"
-    kubectl get ingress "$application_name-clinics" --namespace=$namespace > /dev/null 2>&1
+    kubectl get ingress "$application_name-clinics" --namespace=$bamboo_CONSUL_ENVIRONMENT > /dev/null 2>&1
     if [ $? -eq 0 ];
     then
         method="replace"
