@@ -7,7 +7,7 @@ $bamboo_deployment_environment = getenv('bamboo_deploy_environment');
 $bamboo_nexus_server_docker_port = getenv('bamboo_nexus_server_docker_port');
 $bamboo_CONSUL_ENVIRONMENT = getenv('bamboo_CONSUL_ENVIRONMENT');
 $k8s_build_id = getenv('k8s_build_id');
-$serviceDefinitionFile = 'docker/serviceDefinition.json';
+$serviceDefinitionFile = '../docker/serviceDefinition.json';
 
 if (!file_exists($serviceDefinitionFile)) {
     fwrite(STDERR, "No serviceDefinition.json json found.\n");
