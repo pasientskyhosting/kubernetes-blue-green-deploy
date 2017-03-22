@@ -38,7 +38,7 @@ foreach ($services as $service) {
 
     fwrite(STDERR, "Going to deploy " . $name . PHP_EOL);
 
-    deploy_service($name, $k8s_build_id ,$bamboo_CONSUL_ENVIRONMENT);
+    deploy_service($name, $k8s_build_id, $bamboo_CONSUL_ENVIRONMENT);
 }
 
 
@@ -47,11 +47,11 @@ foreach ($services as $service) {
 */
 function deploy_service($name, $build_id, $namespace)
 {
-    $method="apply"
+    $method="apply";
 
     exec("kubectl get service $name-$build_id --namespace=$namespace", $array, $exitCode);
     if ($exitCode != 0) {
-        $method="replace"
+        $method="replace";
         fwrite(STDERR, "Service for application already exists for " . $name . PHP_EOL);
     }
 
