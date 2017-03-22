@@ -8,6 +8,8 @@ $bamboo_nexus_server_docker_port = getenv('bamboo_nexus_server_docker_port');
 $bamboo_CONSUL_ENVIRONMENT = getenv('bamboo_CONSUL_ENVIRONMENT');
 $k8s_build_id = getenv('k8s_build_id');
 $serviceDefinitionFile = '../docker/serviceDefinition.json';
+$buildConfig = json_decode(file_get_contents($serviceDefinitionFile), true);
+$services = $buildConfig['services'];
 
 if (!file_exists($serviceDefinitionFile)) {
     fwrite(STDERR, "No serviceDefinition.json json found.\n");
@@ -29,35 +31,95 @@ if ($exitCode != 0) {
     fwrite(STDERR, "Created namespace $bamboo_CONSUL_ENVIRONMENT in cluster\n");
 }
 
-/** Start individual deployments */
-$buildConfig = json_decode(file_get_contents($serviceDefinitionFile), true);
-$services = $buildConfig['services'];
 
-foreach ($services as $service) {
-    $name = $service['name'];
 
-    fwrite(STDERR, "Going to deploy " . $name . PHP_EOL);
+/** INGRESS **/
+if (!deploy_ingress())
+{
+    cleanup();
+}
 
-    deploy_service($name, $k8s_build_id, $bamboo_CONSUL_ENVIRONMENT);
+/** SERVICES **/
+if (!deploy_service())
+{
+    cleanup();
+}
+
+/** GET CURRENT DEPLOYMENT **/
+
+
+/** HPA **/
+if (!deploy_hpa())
+{
+    cleanup();
+}
+
+/** DEPLOYMENTS **/
+if (!deploy_deployments())
+{
+    cleanup();
+}
+
+/* --------------------------------------------------- */
+function cleanup()
+{
+    exec("kubectl delete -f ingress.yaml");
+    exec("kubectl delete -f service.yaml");
+    exec("kubectl delete -f hpa.yaml");
+    exec("kubectl delete -f deploy.yaml");
+}
+
+/*
+    Deploy ingress function
+*/
+function deploy_ingress()
+{
+    exec("kubectl apply -f ingress.yaml", $array, $exitCode);
+    if ($exitCode != 0) {
+        fwrite(STDERR, "Ingress could not be deployed " . PHP_EOL);
+        return false;
+    }
+
+    return true;
 }
 
 
 /*
     Deploy service function
 */
-function deploy_service($name, $build_id, $namespace)
+function deploy_service()
 {
-    $method="apply";
-
-    exec("kubectl get service $name-$build_id --namespace=$namespace", $array, $exitCode);
+    exec("kubectl apply -f service.yaml", $array, $exitCode);
     if ($exitCode != 0) {
-        $method="replace";
-        fwrite(STDERR, "Service for application already exists for " . $name . PHP_EOL);
+        fwrite(STDERR, "Service could not be deployed " . PHP_EOL);
+        return false;
     }
 
-    exec("kubectl $method -f service.yaml", $array, $exitCode);
+    return true;
+}
+
+/*
+    Deploy hpa function
+*/
+function deploy_hpa()
+{
+    exec("kubectl apply -f autoscaler.yaml", $array, $exitCode);
     if ($exitCode != 0) {
-        fwrite(STDERR, "Service could not be deployed for " . $name . PHP_EOL);
+        fwrite(STDERR, "HPA could not be deployed " . PHP_EOL);
+        return false;
+    }
+
+    return true;
+}
+
+/*
+    Deploy deployments function
+*/
+function deploy_deployments()
+{
+    exec("kubectl apply -f deploy.yaml", $array, $exitCode);
+    if ($exitCode != 0) {
+        fwrite(STDERR, "Deployments could not be deployed " . PHP_EOL);
         return false;
     }
 
