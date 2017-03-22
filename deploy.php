@@ -65,7 +65,7 @@ function cleanup()
 {
     exec("kubectl delete -f ingress.yaml");
     exec("kubectl delete -f service.yaml");
-    exec("kubectl delete -f hpa.yaml");
+    exec("kubectl delete -f autoscaler.yaml");
     exec("kubectl delete -f deploy.yaml");
 }
 
