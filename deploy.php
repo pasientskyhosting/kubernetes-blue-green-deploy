@@ -38,10 +38,8 @@ foreach ($services as $service) {
 
     fwrite(STDERR, "Going to deploy " . $name . PHP_EOL);
 
-    deploy_service($name, $k8s_build_id ,$bamboo_CONSUL_ENVIRONMENT)
-
+    deploy_service($name, $k8s_build_id ,$bamboo_CONSUL_ENVIRONMENT);
 }
-
 
 
 /*
