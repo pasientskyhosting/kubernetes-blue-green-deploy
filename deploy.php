@@ -1,5 +1,11 @@
 #!/usr/bin/env php
 <?php
+// signal handler function
+declare(ticks = 500);
+pcntl_signal(SIGTERM, "sig_handler");
+pcntl_signal(SIGKILL, "sig_handler");
+pcntl_signal(SIGINT, "sig_handler");
+
 $git_branch = getenv('bamboo_planRepository_branch');
 $bamboo_build_nr = getenv('bamboo_buildNumber');
 $bamboo_nexus_server = getenv('bamboo_nexus_server');
@@ -12,6 +18,7 @@ $buildConfig = json_decode(file_get_contents($serviceDefinitionFile), true);
 $services = $buildConfig['services'];
 $application = $buildConfig['application'];
 $current_build_id = null;
+
 
 if (!file_exists($serviceDefinitionFile)) {
     fwrite(STDERR, "No serviceDefinition.json json found.\n");
@@ -89,6 +96,7 @@ foreach ($services as $service) {
 
     $failtime=time() + 60 * 5;
     while (true) {
+        pcntl_signal_dispatch();
         $cmd = exec('kubectl get deployment ' . $srv . ' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d \' \' | grep -Eo \'[0-9]+\'');
         $check_app = exec($cmd);
 
@@ -213,4 +221,9 @@ function deploy_deployments()
     }
 
     return true;
+}
+
+function sig_handler($signo)
+{
+     cleanup();
 }
