@@ -116,19 +116,10 @@ foreach ($services as $service) {
     }
 }
 
-var_dump($current_build_id);
-
-deploy_generic_service();
-//
-// if ($current_build_id != null && strlen($current_build_id) > 0)
-// {
-//     /** Check for generic service. Add if they are not present */
-//     fwrite(STDOUT, "Adding generic service" . PHP_EOL);
-//
-// }
-// else {
-//     fwrite(STDOUT, "generic service - current id: " . $current_build_id . PHP_EOL);
-// }
+if ($current_build_id == NULL)
+{
+    deploy_generic_service();
+}
 
 /** Switch to new deployment or cleanup **/
 foreach ($services as $service) {
@@ -157,6 +148,9 @@ function cleanup()
 
 function cleanup_old_deployment($build_id, $namespace, $services, $application)
 {
+    if ($build_id == null)
+        return;
+
     foreach ($services as $service) {
         $current_release = $application . '-' . $service['name'] . '-' . $build_id;
 
