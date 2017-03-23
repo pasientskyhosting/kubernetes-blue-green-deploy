@@ -97,7 +97,7 @@ foreach ($services as $service) {
     $failtime=time() + 60 * 5;
     while (true) {
         pcntl_signal_dispatch();
-        $cmd = exec('kubectl get deployment ' . $srv . ' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d \' \' | grep -Eo \'[0-9]+\'');
+        $cmd = 'kubectl get deployment ' . $srv . ' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d \' \' | grep -Eo \'[0-9]+\'';
         $check_app = exec($cmd);
 
         if ($check_app != "") {
