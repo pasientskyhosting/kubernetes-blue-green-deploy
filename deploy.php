@@ -59,9 +59,6 @@ if (!deploy_ingress()) {
     cleanup();
 }
 
-/** Check for generic service. Add if they are not present */
-$has_generic_services = deploy_generic_service();
-
 /** GET CURRENT DEPLOYMENT **/
 foreach ($services as $service) {
     $service_dpl_name = "$application-" . $service['name'];
@@ -72,6 +69,12 @@ foreach ($services as $service) {
         fwrite(STDOUT, "Current deployment running is: $current_build_id".PHP_EOL);
         break;
     }
+}
+
+if ($current_build_id != null)
+{
+    /** Check for generic service. Add if they are not present */
+    deploy_generic_service();
 }
 
 /** SERVICES **/
@@ -98,10 +101,9 @@ foreach ($services as $service) {
     $failtime=time() + 60 * 5;
     while (true) {
         pcntl_signal_dispatch();
+
         $cmd = 'kubectl get deployment ' . $srv . ' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d \' \' | grep -Eo \'[0-9]+\'';
         $check_app = exec($cmd);
-
-        fwrite(STDOUT, "." . PHP_EOL);
 
         if ($check_app != "") {
             // Appplication came online
@@ -115,6 +117,7 @@ foreach ($services as $service) {
             exit(1);
         }
 
+        fwrite(STDOUT, "." . PHP_EOL);
         sleep(5);
     }
 }
