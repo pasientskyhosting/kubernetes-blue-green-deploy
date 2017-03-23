@@ -21,7 +21,7 @@ if (!file_exists($serviceDefinitionFile)) {
 /**
 * Check if namespace is present
 */
-fwrite(STDERR, "Check if environment exists before starting deployment\n");
+fwrite(STDOUT, "Check if environment exists before starting deployment\n");
 exec("kubectl get namespace $bamboo_CONSUL_ENVIRONMENT", $array, $exitCode);
 if ($exitCode != 0) {
     exec("kubectl create namespace $bamboo_CONSUL_ENVIRONMENT", $array, $exitCode);
@@ -30,13 +30,13 @@ if ($exitCode != 0) {
         exit(1);
     }
 
-    fwrite(STDERR, "Created namespace $bamboo_CONSUL_ENVIRONMENT in cluster\n");
+    fwrite(STDOUT, "Created namespace $bamboo_CONSUL_ENVIRONMENT in cluster\n");
 }
 
 /**
 * Check for nexus key
 */
-fwrite(STDERR, "Check if secret to nexus exists before starting deployment\n");
+fwrite(STDOUT, "Check if secret to nexus exists before starting deployment\n");
 exec("kubectl get secret -n $bamboo_CONSUL_ENVIRONMENT nexus", $array, $exitCode);
 if ($exitCode != 0) {
     exec("kubectl create secret docker-registry nexus --docker-username=docker --docker-password=docker --docker-email=jsp@patientsky.com --namespace=$bamboo_CONSUL_ENVIRONMENT --docker-server=https://odn1-nexus-docker.privatedns.zone", $array, $exitCode);
@@ -45,12 +45,11 @@ if ($exitCode != 0) {
         exit(1);
     }
 
-    fwrite(STDERR, "Created nexus secret for $bamboo_CONSUL_ENVIRONMENT in cluster\n");
+    fwrite(STDOUT, "Created nexus secret for $bamboo_CONSUL_ENVIRONMENT in cluster\n");
 }
 
 /** INGRESS **/
-if (!deploy_ingress())
-{
+if (!deploy_ingress()) {
     cleanup();
 }
 
@@ -62,34 +61,51 @@ foreach ($services as $service) {
     $service_dpl_name = "$application-" . $service['name'];
     $tmp_build_id = exec("kubectl get service $service_dpl_name -o yaml --namespace=$bamboo_CONSUL_ENVIRONMENT | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'");
 
-    if (strlen($tmp_build_id) > 0)
-    {
+    if (strlen($tmp_build_id) > 0) {
         $current_build_id = $tmp_build_id;
-        fwrite(STDERR, "Current deployment running is: $current_build_id\n");
+        fwrite(STDOUT, "Current deployment running is: $current_build_id\n");
         break;
     }
 }
 
 /** SERVICES **/
-if (!deploy_service())
-{
+if (!deploy_service()) {
     cleanup();
 }
 
 /** HPA **/
-if (!deploy_hpa())
-{
+if (!deploy_hpa()) {
     cleanup();
 }
 
 /** DEPLOYMENTS **/
-if (!deploy_deployments())
-{
+if (!deploy_deployments()) {
     cleanup();
 }
 
 /** Validate that containers started **/
+foreach ($services as $service) {
+    $srv = $application . '-' . $service['name'] . '-' . $k8s_build_id;
 
+    $failtime=time() + 60 * 5;
+    while (true) {
+        $cmd = exec('kubectl get deployment ' . $srv . ' -o yaml --namespace= ' . $bamboo_CONSUL_ENVIRONMENT .' | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d \' \' | grep -Eo \'[0-9]+\'');
+        $check_app = exec($cmd);
+
+        if ($check_app != "") {
+            // Appplication came online
+            continue;
+        }
+
+        if (time() > $failtime) {
+            fwrite(STDERR, "Service $srv never came available\n");
+            cleanup();
+            exit(1);
+        }
+
+        sleep(5);
+    }
+}
 
 /** Switch to new deployment or cleanup **/
 foreach ($services as $service) {
@@ -103,11 +119,7 @@ foreach ($services as $service) {
 }
 
 /** Delete old deployments **/
-cleanup_old_deployment($k8s_build_id,$bamboo_CONSUL_ENVIRONMENT,$services,$application);
-
-
-
-
+cleanup_old_deployment($k8s_build_id, $bamboo_CONSUL_ENVIRONMENT, $services, $application);
 
 /* --------------------------------------------------- */
 
@@ -120,7 +132,7 @@ function cleanup()
     exec("kubectl delete -f deploy.yaml");
 }
 
-function cleanup_old_deployment($build_id, $namespace,$services,$application)
+function cleanup_old_deployment($build_id, $namespace, $services, $application)
 {
     foreach ($services as $service) {
         $current_release = $application . '-' . $service['name'] . '-' . $build_id;
@@ -128,7 +140,7 @@ function cleanup_old_deployment($build_id, $namespace,$services,$application)
         exec("kubectl delete service $current_release --namespace=$namespace");
         exec("kubectl delete hpa $current_release --namespace=$namespace");
         exec("kubectl delete deployment $current_release --namespace=$namespace");
-        exec("kubectl delete rs $current_release --namespace=$namespace");
+        exec("kubectl delete rs $current_release --namespace=$namespace > /dev/null 2>&1");
     }
 }
 
@@ -168,7 +180,6 @@ function deploy_generic_service()
 {
     exec("kubectl apply -f service-generic.yaml > /dev/null 2>&1", $array, $exitCode);
     if ($exitCode != 0) {
-        fwrite(STDERR, "Generic service could not be deployed " . PHP_EOL);
         return false;
     }
 
