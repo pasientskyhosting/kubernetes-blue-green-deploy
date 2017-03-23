@@ -64,16 +64,17 @@ foreach ($services as $service) {
     $service_dpl_name = "$application-" . $service['name'];
     $tmp_build_id = exec("kubectl get service $service_dpl_name -o yaml --namespace=$bamboo_CONSUL_ENVIRONMENT | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'");
 
-    if (strlen($tmp_build_id) > 0) {
+    if (strlen($tmp_build_id) > 0 && $tmp_build_id != "") {
         $current_build_id = $tmp_build_id;
         fwrite(STDOUT, "Current deployment running is: $current_build_id".PHP_EOL);
         break;
     }
 }
 
-if ($current_build_id != null)
+if (strlen($current_build_id) > 0)
 {
     /** Check for generic service. Add if they are not present */
+    fwrite(STDOUT, "Adding generic service" . PHP_EOL);
     deploy_generic_service();
 }
 
