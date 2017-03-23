@@ -69,7 +69,7 @@ foreach ($services as $service) {
 
     if (strlen($tmp_build_id) > 0) {
         $current_build_id = $tmp_build_id;
-        fwrite(STDOUT, "Current deployment running is: $current_build_id\n");
+        fwrite(STDOUT, "Current deployment running is: $current_build_id".PHP_EOL);
         break;
     }
 }
@@ -93,14 +93,19 @@ if (!deploy_deployments()) {
 foreach ($services as $service) {
     $srv = $application . '-' . $service['name'] . '-' . $k8s_build_id;
 
+    fwrite(STDOUT, "Validating deployment for " . $srv . PHP_EOL);
+
     $failtime=time() + 60 * 5;
     while (true) {
         pcntl_signal_dispatch();
         $cmd = 'kubectl get deployment ' . $srv . ' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d \' \' | grep -Eo \'[0-9]+\'';
         $check_app = exec($cmd);
 
+        fwrite(STDOUT, "." . PHP_EOL);
+
         if ($check_app != "") {
             // Appplication came online
+            fwrite(STDOUT, "OK" . PHP_EOL);
             continue;
         }
 
