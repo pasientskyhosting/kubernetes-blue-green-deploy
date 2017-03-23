@@ -161,10 +161,14 @@ function cleanup_old_deployment($build_id, $namespace, $services, $application)
 */
 function deploy_ingress()
 {
-    exec("kubectl apply -f ingress.yaml", $array, $exitCode);
-    if ($exitCode != 0) {
-        fwrite(STDERR, "Ingress could not be deployed " . PHP_EOL);
-        return false;
+    if (file_exists('ingress.yaml')) {
+        exec("kubectl apply -f ingress.yaml", $array, $exitCode);
+        if ($exitCode != 0) {
+            fwrite(STDERR, "Ingress could not be deployed " . PHP_EOL);
+            return false;
+        }
+    } else {
+        fwrite(STDOUT, "No ingress to deploy " . PHP_EOL);
     }
 
     return true;
@@ -229,5 +233,5 @@ function deploy_deployments()
 
 function sig_handler($signo)
 {
-     cleanup();
+    cleanup();
 }
