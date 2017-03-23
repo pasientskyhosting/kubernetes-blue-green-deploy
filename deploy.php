@@ -62,9 +62,9 @@ if (!deploy_ingress()) {
 /** GET CURRENT DEPLOYMENT **/
 foreach ($services as $service) {
     $service_dpl_name = "$application-" . $service['name'];
-    $tmp_build_id = exec("kubectl get service $service_dpl_name -o yaml --namespace=$bamboo_CONSUL_ENVIRONMENT | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'", $array, $exitCode);
+    $tmp_build_id = exec("kubectl get service $service_dpl_name -o yaml --namespace=$bamboo_CONSUL_ENVIRONMENT | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'");
 
-    if ($exitCode != 0 && strlen($tmp_build_id) > 0 && $tmp_build_id != "") {
+    if (strlen($tmp_build_id) > 0) {
         $current_build_id = $tmp_build_id;
         fwrite(STDOUT, "Current deployment running is: $current_build_id".PHP_EOL);
         break;
