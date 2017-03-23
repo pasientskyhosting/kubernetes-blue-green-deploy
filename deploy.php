@@ -134,7 +134,7 @@ foreach ($services as $service) {
 }
 
 /** Delete old deployments **/
-cleanup_old_deployment($k8s_build_id, $bamboo_CONSUL_ENVIRONMENT, $services, $application);
+cleanup_old_deployment($current_build_id, $bamboo_CONSUL_ENVIRONMENT, $services, $application);
 
 /* --------------------------------------------------- */
 
