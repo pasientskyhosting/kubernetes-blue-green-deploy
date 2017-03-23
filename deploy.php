@@ -106,7 +106,7 @@ foreach ($services as $service) {
         if ($check_app != "") {
             // Appplication came online
             fwrite(STDOUT, "OK" . PHP_EOL);
-            continue;
+            break;
         }
 
         if (time() > $failtime) {
