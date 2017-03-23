@@ -71,15 +71,17 @@ foreach ($services as $service) {
     }
 }
 
-if ($current_build_id != null && strlen($current_build_id) > 0)
-{
-    /** Check for generic service. Add if they are not present */
-    fwrite(STDOUT, "Adding generic service" . PHP_EOL);
-    deploy_generic_service();
-}
-else {
-    fwrite(STDOUT, "generic service - current id: " . $current_build_id . PHP_EOL);
-}
+deploy_generic_service();
+//
+// if ($current_build_id != null && strlen($current_build_id) > 0)
+// {
+//     /** Check for generic service. Add if they are not present */
+//     fwrite(STDOUT, "Adding generic service" . PHP_EOL);
+//
+// }
+// else {
+//     fwrite(STDOUT, "generic service - current id: " . $current_build_id . PHP_EOL);
+// }
 
 /** SERVICES **/
 if (!deploy_service()) {
