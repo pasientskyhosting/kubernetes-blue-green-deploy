@@ -10,6 +10,8 @@ $k8s_build_id = getenv('k8s_build_id');
 $serviceDefinitionFile = '../docker/serviceDefinition.json';
 $buildConfig = json_decode(file_get_contents($serviceDefinitionFile), true);
 $services = $buildConfig['services'];
+$application = $buildConfig['application'];
+$current_build_id = null;
 
 if (!file_exists($serviceDefinitionFile)) {
     fwrite(STDERR, "No serviceDefinition.json json found.\n");
@@ -31,7 +33,20 @@ if ($exitCode != 0) {
     fwrite(STDERR, "Created namespace $bamboo_CONSUL_ENVIRONMENT in cluster\n");
 }
 
+/**
+* Check for nexus key
+*/
+fwrite(STDERR, "Check if secret to nexus exists before starting deployment\n");
+exec("kubectl get secret -n $bamboo_CONSUL_ENVIRONMENT nexus", $array, $exitCode);
+if ($exitCode != 0) {
+    exec("kubectl create secret docker-registry nexus --docker-username=docker --docker-password=docker --docker-email=jsp@patientsky.com --namespace=$bamboo_CONSUL_ENVIRONMENT --docker-server=https://odn1-nexus-docker.privatedns.zone", $array, $exitCode);
+    if ($exitCode != 0) {
+        fwrite(STDERR, "Failed to created nexus secret to $bamboo_CONSUL_ENVIRONMENT in cluster\n");
+        exit(1);
+    }
 
+    fwrite(STDERR, "Created nexus secret for $bamboo_CONSUL_ENVIRONMENT in cluster\n");
+}
 
 /** INGRESS **/
 if (!deploy_ingress())
@@ -39,14 +54,27 @@ if (!deploy_ingress())
     cleanup();
 }
 
+/** Check for generic service. Add if they are not present */
+$has_generic_services = deploy_generic_service();
+
+/** GET CURRENT DEPLOYMENT **/
+foreach ($services as $service) {
+    $service_dpl_name = "$application-" . $service['name'];
+    $tmp_build_id = exec("kubectl get service $service_dpl_name -o yaml --namespace=$bamboo_CONSUL_ENVIRONMENT | grep 'build:' | cut -d ':' -f 2 | tr -d ' ' | tr -d '\"'");
+
+    if (strlen($tmp_build_id) > 0)
+    {
+        $current_build_id = $tmp_build_id;
+        fwrite(STDERR, "Current deployment running is: $current_build_id\n");
+        break;
+    }
+}
+
 /** SERVICES **/
 if (!deploy_service())
 {
     cleanup();
 }
-
-/** GET CURRENT DEPLOYMENT **/
-
 
 /** HPA **/
 if (!deploy_hpa())
@@ -60,9 +88,29 @@ if (!deploy_deployments())
     cleanup();
 }
 
+/** Validate that containers started **/
+
+
+/** Switch to new deployment or cleanup **/
+foreach ($services as $service) {
+    $service_dpl_name = "$application-" . $service['name'];
+
+    $cmd = 'kubectl get service '. $service_dpl_name.' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | sed "s/build:.*$/build: \"'. $k8s_build_id. '\"/" | kubectl replace -f -;';
+    exec($cmd, $array, $exitCode);
+    if ($exitCode != 0) {
+        fwrite(STDERR, "Could not switch deployment for $service_dpl_name" . PHP_EOL);
+    }
+}
+
+/** Delete old deployments **/
+cleanup_old_deployment($k8s_build_id,$bamboo_CONSUL_ENVIRONMENT,$services);
+
+
+
 
 
 /* --------------------------------------------------- */
+
 function cleanup()
 {
     fwrite(STDERR, "Deployments failed. Cleaning up after me " . PHP_EOL);
@@ -70,6 +118,18 @@ function cleanup()
     exec("kubectl delete -f service.yaml");
     exec("kubectl delete -f autoscaler.yaml");
     exec("kubectl delete -f deploy.yaml");
+}
+
+function cleanup_old_deployment($build_id, $namespace,$services)
+{
+    foreach ($services as $service) {
+        $current_release = $application . '-' . $service['name'] . '-' . $build_id;
+
+        exec("kubectl delete service $current_release --namespace=$namespace");
+        exec("kubectl delete hpa $current_release --namespace=$namespace");
+        exec("kubectl delete deployment $current_release --namespace=$namespace");
+        exec("kubectl delete rs $current_release --namespace=$namespace");
+    }
 }
 
 /*
@@ -100,6 +160,21 @@ function deploy_service()
 
     return true;
 }
+
+/*
+    Deploy service function
+*/
+function deploy_generic_service()
+{
+    exec("kubectl apply -f service-generic.yaml", $array, $exitCode);
+    if ($exitCode != 0) {
+        fwrite(STDERR, "Generic service could not be deployed " . PHP_EOL);
+        return false;
+    }
+
+    return true;
+}
+
 
 /*
     Deploy hpa function
