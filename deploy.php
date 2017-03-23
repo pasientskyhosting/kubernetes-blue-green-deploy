@@ -71,7 +71,7 @@ foreach ($services as $service) {
     }
 }
 
-if (strlen($current_build_id) > 0)
+if ($current_build_id != null && strlen($current_build_id) > 0)
 {
     /** Check for generic service. Add if they are not present */
     fwrite(STDOUT, "Adding generic service" . PHP_EOL);
