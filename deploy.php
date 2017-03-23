@@ -3,7 +3,6 @@
 // signal handler function
 declare(ticks = 500);
 pcntl_signal(SIGTERM, "sig_handler");
-pcntl_signal(SIGKILL, "sig_handler");
 pcntl_signal(SIGINT, "sig_handler");
 
 $git_branch = getenv('bamboo_planRepository_branch');
