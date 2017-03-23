@@ -166,7 +166,7 @@ function deploy_service()
 */
 function deploy_generic_service()
 {
-    exec("kubectl apply -f service-generic.yaml", $array, $exitCode);
+    exec("kubectl apply -f service-generic.yaml > /dev/null 2>&1", $array, $exitCode);
     if ($exitCode != 0) {
         fwrite(STDERR, "Generic service could not be deployed " . PHP_EOL);
         return false;
