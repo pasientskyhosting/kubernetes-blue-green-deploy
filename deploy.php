@@ -71,18 +71,6 @@ foreach ($services as $service) {
     }
 }
 
-deploy_generic_service();
-//
-// if ($current_build_id != null && strlen($current_build_id) > 0)
-// {
-//     /** Check for generic service. Add if they are not present */
-//     fwrite(STDOUT, "Adding generic service" . PHP_EOL);
-//
-// }
-// else {
-//     fwrite(STDOUT, "generic service - current id: " . $current_build_id . PHP_EOL);
-// }
-
 /** SERVICES **/
 if (!deploy_service()) {
     cleanup();
@@ -127,6 +115,20 @@ foreach ($services as $service) {
         sleep(5);
     }
 }
+
+var_dump($current_build_id);
+
+deploy_generic_service();
+//
+// if ($current_build_id != null && strlen($current_build_id) > 0)
+// {
+//     /** Check for generic service. Add if they are not present */
+//     fwrite(STDOUT, "Adding generic service" . PHP_EOL);
+//
+// }
+// else {
+//     fwrite(STDOUT, "generic service - current id: " . $current_build_id . PHP_EOL);
+// }
 
 /** Switch to new deployment or cleanup **/
 foreach ($services as $service) {
@@ -203,6 +205,7 @@ function deploy_service()
 */
 function deploy_generic_service()
 {
+    fwrite(STDOUT, "Deploying generic service " . PHP_EOL);
     exec("kubectl apply -f service-generic.yaml > /dev/null 2>&1", $array, $exitCode);
     if ($exitCode != 0) {
         return false;
