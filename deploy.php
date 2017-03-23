@@ -103,7 +103,7 @@ foreach ($services as $service) {
 }
 
 /** Delete old deployments **/
-cleanup_old_deployment($k8s_build_id,$bamboo_CONSUL_ENVIRONMENT,$services);
+cleanup_old_deployment($k8s_build_id,$bamboo_CONSUL_ENVIRONMENT,$services,$application);
 
 
 
@@ -120,7 +120,7 @@ function cleanup()
     exec("kubectl delete -f deploy.yaml");
 }
 
-function cleanup_old_deployment($build_id, $namespace,$services)
+function cleanup_old_deployment($build_id, $namespace,$services,$application)
 {
     foreach ($services as $service) {
         $current_release = $application . '-' . $service['name'] . '-' . $build_id;
