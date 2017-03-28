@@ -140,7 +140,6 @@ cleanup_old_deployment($current_build_id, $bamboo_CONSUL_ENVIRONMENT, $services,
 function cleanup()
 {
     fwrite(STDERR, "Deployments failed. Cleaning up after me " . PHP_EOL);
-    exec("kubectl delete -f ingress.yaml");
     exec("kubectl delete -f service.yaml");
     exec("kubectl delete -f autoscaler.yaml");
     exec("kubectl delete -f deploy.yaml");
