@@ -121,7 +121,7 @@ if ($current_build_id == NULL)
     deploy_generic_service();
 }
 else {
-    deploy_generic_service('replace')
+    deploy_generic_service('replace');
 }
 
 /** Switch to new deployment or cleanup **/
