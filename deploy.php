@@ -120,9 +120,12 @@ if ($current_build_id == NULL)
 {
     deploy_generic_service();
 }
+else {
+    deploy_generic_service('replace')
+}
 
 /** Switch to new deployment or cleanup **/
-foreach ($services as $service) {
+/*foreach ($services as $service) {
     $service_dpl_name = "$application-" . $service['name'];
 
     $cmd = 'kubectl get service '. $service_dpl_name.' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | sed "s/build:.*$/build: \"'. $k8s_build_id. '\"/" | kubectl replace -f -;';
@@ -130,7 +133,8 @@ foreach ($services as $service) {
     if ($exitCode != 0) {
         fwrite(STDERR, "Could not switch deployment for $service_dpl_name" . PHP_EOL);
     }
-}
+}*/
+
 
 /** Delete old deployments **/
 cleanup_old_deployment($current_build_id, $bamboo_CONSUL_ENVIRONMENT, $services, $application);
@@ -196,17 +200,16 @@ function deploy_service()
 /*
     Deploy service function
 */
-function deploy_generic_service()
+function deploy_generic_service($method = 'apply')
 {
     fwrite(STDOUT, "Deploying generic service " . PHP_EOL);
-    exec("kubectl apply -f service-generic.yaml > /dev/null 2>&1", $array, $exitCode);
+    exec("kubectl $method -f service-generic.yaml > /dev/null 2>&1", $array, $exitCode);
     if ($exitCode != 0) {
         return false;
     }
 
     return true;
 }
-
 
 /*
     Deploy hpa function
