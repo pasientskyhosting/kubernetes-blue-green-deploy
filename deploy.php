@@ -116,13 +116,15 @@ foreach ($services as $service) {
     }
 }
 
-if ($current_build_id == NULL)
+/*if ($current_build_id == NULL)
 {
     deploy_generic_service();
 }
 else {
     deploy_generic_service('replace');
 }
+*/
+deploy_generic_service();
 
 /** Switch to new deployment or cleanup **/
 /*foreach ($services as $service) {
@@ -200,10 +202,10 @@ function deploy_service()
 /*
     Deploy service function
 */
-function deploy_generic_service($method = 'apply')
+function deploy_generic_service()
 {
     fwrite(STDOUT, "Deploying generic service " . PHP_EOL);
-    exec("kubectl $method -f service-generic.yaml > /dev/null 2>&1", $array, $exitCode);
+    exec("kubectl apply -f service-generic.yaml > /dev/null 2>&1", $array, $exitCode);
     if ($exitCode != 0) {
         return false;
     }
