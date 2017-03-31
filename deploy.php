@@ -116,30 +116,25 @@ foreach ($services as $service) {
     }
 }
 
-/*if ($current_build_id == NULL)
+if ($current_build_id == NULL)
 {
     deploy_generic_service();
 }
-else {
-    deploy_generic_service('replace');
-}
-*/
-deploy_generic_service();
 
 /** Switch to new deployment or cleanup **/
-/*foreach ($services as $service) {
+foreach ($services as $service) {
     $service_dpl_name = "$application-" . $service['name'];
-
     $cmd = 'kubectl get service '. $service_dpl_name.' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | sed "s/build:.*$/build: \"'. $k8s_build_id. '\"/" | kubectl replace -f -;';
     exec($cmd, $array, $exitCode);
     if ($exitCode != 0) {
         fwrite(STDERR, "Could not switch deployment for $service_dpl_name" . PHP_EOL);
     }
-}*/
-
+}
 
 /** Delete old deployments **/
 cleanup_old_deployment($current_build_id, $bamboo_CONSUL_ENVIRONMENT, $services, $application);
+
+
 
 /* --------------------------------------------------- */
 
