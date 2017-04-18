@@ -79,7 +79,7 @@ EOF
 
     echo "Creating dns record for $line that points to ip $hostname_ip"
     # Update the Hosted Zone record
-    aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE" --debug
+    aws route53 change-resource-record-sets --hosted-zone-id $zoneid --change-batch file://"$TMPFILE"
     if [ $? -ne 0 ];
     then
         echo "Failed to create dns record at Amazon"
@@ -107,7 +107,7 @@ EOF
         sleep 5
     done
     echo "... Done"
-    
+
     sleep 5
 done
 
