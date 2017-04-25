@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 // signal handler function
-declare(ticks = 500);
-pcntl_signal(SIGTERM, "sig_handler");
-pcntl_signal(SIGINT, "sig_handler");
+//declare(ticks = 500);
+//pcntl_signal(SIGTERM, "sig_handler");
+//pcntl_signal(SIGINT, "sig_handler");
 
 $git_branch = getenv('bamboo_planRepository_branch');
 $bamboo_build_nr = getenv('bamboo_buildNumber');
@@ -236,7 +236,8 @@ function deploy_deployments()
     return true;
 }
 
-function sig_handler($signo)
+/*function sig_handler($signo)
 {
     cleanup();
 }
+*/
