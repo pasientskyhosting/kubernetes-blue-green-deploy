@@ -1,15 +1,5 @@
 #!/usr/bin/env php
 <?php
-// signal handler function
-//declare(ticks = 500);
-//pcntl_signal(SIGTERM, "sig_handler");
-//pcntl_signal(SIGINT, "sig_handler");
-
-$git_branch = getenv('bamboo_planRepository_branch');
-$bamboo_build_nr = getenv('bamboo_buildNumber');
-$bamboo_nexus_server = getenv('bamboo_nexus_server');
-$bamboo_deployment_environment = getenv('bamboo_deploy_environment');
-$bamboo_nexus_server_docker_port = getenv('bamboo_nexus_server_docker_port');
 $bamboo_CONSUL_ENVIRONMENT = getenv('bamboo_CONSUL_ENVIRONMENT');
 $k8s_build_id = getenv('k8s_build_id');
 $serviceDefinitionFile = '../docker/serviceDefinition.json';
@@ -94,8 +84,6 @@ foreach ($services as $service) {
 
     $failtime=time() + 60 * 5;
     while (true) {
-        pcntl_signal_dispatch();
-
         $cmd = 'kubectl get deployment ' . $srv . ' -o yaml --namespace=' . $bamboo_CONSUL_ENVIRONMENT .' | grep "^  availableReplicas:" | cut -d ":" -f 2 | tr -d \' \' | grep -Eo \'[0-9]+\'';
         $check_app = exec($cmd);
 
@@ -235,9 +223,3 @@ function deploy_deployments()
 
     return true;
 }
-
-/*function sig_handler($signo)
-{
-    cleanup();
-}
-*/
