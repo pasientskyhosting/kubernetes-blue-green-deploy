@@ -8,8 +8,8 @@ fi
 source config
 
 echo "AWS Secrets:"
-echo $AWS_PASSWORD_ACCESS_KEY_ID
-echo $AWS_SECRET_ACCESS_KEY
+echo $bamboo_AWS_PASSWORD_ACCESS_KEY_ID
+echo $bamboo_AWS_SECRET_ACCESS_KEY
 
 # More advanced options below
 # The Time-To-Live of this recordset
